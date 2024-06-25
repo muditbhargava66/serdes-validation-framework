@@ -1,0 +1,9 @@
+pyvisa
+pyvisa-py
+pandas
+matplotlib
+seaborn
+gpib-ctypes
+mock
+tox
+pytest
