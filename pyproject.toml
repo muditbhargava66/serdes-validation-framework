@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "serdes-validation-framework"
+version = "1.0.0"
+description = "A comprehensive framework for validating high-speed SerDes protocols."
+authors = [
+    {name = "Mudit Bhargava", email = "muditbhargava666@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+keywords = [
+    "SerDes",
+    "high-speed",
+    "validation",
+    "data collection",
+    "data analysis",
+    "instrument control",
+    "GPIB",
+    "automation"
+]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    "Topic :: System :: Hardware :: Hardware Drivers"
+]
+
+dependencies = [
+    "pyvisa",
+    "pyvisa-py",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "gpib-ctypes",
+    "mock",
+    "pytest"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/muditbhargava66/serdes-validation-framework"
+"Documentation" = "https://github.com/muditbhargava66/serdes-validation-framework/tree/main/docs"
+"Source" = "https://github.com/muditbhargava66/serdes-validation-framework"
+"Tracker" = "https://github.com/muditbhargava66/serdes-validation-framework/issues"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]
+
+[tool.ruff]
+line-length = 115
+target-version = "py310"
+exclude = [
+    ".git",
+    "__pycache__",
+    "venv",
+    "env",
+    ".venv",
+    ".env",
+    "build",
+    "dist"
+]
+select = [
+    "E",
+    "F",
+    "W",
+    "C90"
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 115
