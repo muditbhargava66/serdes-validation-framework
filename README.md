@@ -111,7 +111,7 @@ We welcome contributions from the community. Please read our [contributing guide
 3. **Run linter:**
 
     ```bash
-    flake8 src tests
+    ruff check src tests
     ```
 
 4. **Run Tox for testing across multiple environments:**
