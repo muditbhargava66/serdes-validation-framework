@@ -20,7 +20,7 @@ This project provides a comprehensive framework for validating high-speed SerDes
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Python 3.10 or higher
 - Git
 
 ### Steps
@@ -128,56 +128,72 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ```plaintext
 serdes-validation-framework/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   ├── feature_request.md
-│   └── workflows/
-│       ├── ci.yml
-│       ├── lint.yml
+├── .github/                          # [Existing] GitHub specific files
 ├── docs/
 │   ├── api/
 │   │   ├── index.md
-│   │   └── usage.md
+│   │   ├── usage.md
+│   │   ├── eth_224g.md              # [New] 224G Ethernet API documentation
+│   │   └── pam4_analysis.md         # [New] PAM4 analysis documentation
 │   ├── images/
 │   ├── tutorials/
-│   │   └── getting_started.md
+│   │   ├── getting_started.md
+│   │   ├── 224g_validation.md       # [New] 224G validation tutorial
+│   │   └── pam4_analysis.md         # [New] PAM4 analysis tutorial
 │   ├── CONTRIBUTING.md
 │   ├── INSTALL.md
-│   ├── USAGE.md
+│   └── USAGE.md
 ├── examples/
 │   ├── test_sequence_example.py
 │   ├── data_analysis_example.py
+│   ├── eth_224g_example.py          # [New] 224G testing example
+│   └── pam4_analysis_example.py     # [New] PAM4 analysis example
 ├── scripts/
 │   ├── data_collection.py
 │   ├── data_analysis.py
 │   ├── instrument_control.py
 │   ├── test_sequence.py
+│   └── eth_224g_validation.py       # [New] 224G validation script
 ├── src/
-│   ├── serdes_validation_framework/
-│   │   ├── __init__.py
-│   │   ├── data_collection/
-│   │   │   ├── __init__.py
-│   │   │   ├── data_collector.py
-│   │   ├── data_analysis/
-│   │   │   ├── __init__.py
-│   │   │   ├── analyzer.py
-│   │   ├── instrument_control/
-│   │   │   ├── __init__.py
-│   │   │   ├── controller.py
-│   │   ├── test_sequence/
-│   │   │   ├── __init__.py
-│   │   │   ├── sequencer.py
+│   └── serdes_validation_framework/
+│       ├── __init__.py
+│       ├── data_collection/         # [Existing] Base data collection
+│       │   ├── __init__.py
+│       │   └── data_collector.py
+│       ├── data_analysis/          
+│       │   ├── __init__.py
+│       │   ├── analyzer.py
+│       │   └── pam4_analyzer.py     # [New] PAM4 signal analysis
+│       ├── instrument_control/
+│       │   ├── __init__.py
+│       │   ├── controller.py
+│       │   ├── mock_controller.py
+│       │   └── scope_224g.py        # [New] High-bandwidth scope control
+│       ├── test_sequence/
+│       │   ├── __init__.py
+│       │   ├── sequencer.py
+│       │   └── eth_224g_sequence.py # [New] 224G test sequences
+│       └── protocols/               # [New] Protocol-specific modules
+│           ├── __init__.py
+│           └── ethernet_224g/
+│               ├── __init__.py
+│               ├── constants.py      # Protocol constants
+│               ├── compliance.py     # Compliance specifications
+│               └── training.py       # Link training patterns
 ├── tests/
 │   ├── test_data_collection.py
 │   ├── test_data_analysis.py
 │   ├── test_instrument_control.py
 │   ├── test_test_sequence.py
+│   ├── test_pam4_analyzer.py       # [New] PAM4 analyzer tests
+│   ├── test_eth_224g_sequence.py   # [New] 224G sequence tests
+│   └── test_scope_224g.py         # [New] Scope control tests
 ├── .gitignore
 ├── LICENSE
-├── README.md
-├── requirements.txt
-├── setup.py
+├── README.md                       # [Update] Add 224G features
+├── requirements.txt                # [Update] Add new dependencies
+├── setup.py                       # [Update] Add new modules
+├── CHANGELOG.md
 └── tox.ini
 ```
 

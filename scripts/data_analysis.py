@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 import logging
 from src.serdes_validation_framework.data_analysis.analyzer import DataAnalyzer
 
