@@ -2,15 +2,9 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [project]
 name = "serdes-validation-framework"
-version = "1.0.0"
+version = "1.2.0"
 description = "A comprehensive framework for validating high-speed SerDes protocols."
 authors = [
     {name = "Mudit Bhargava", email = "muditbhargava666@gmail.com"}
@@ -53,7 +47,11 @@ dependencies = [
     "seaborn",
     "gpib-ctypes",
     "mock",
-    "pytest"
+    "pytest",
+    "zeroconf",
+    "numpy",
+    "scipy>=1.13.1",
+    "scikit-learn"
 ]
 
 [project.urls]
@@ -62,16 +60,33 @@ dependencies = [
 "Source" = "https://github.com/muditbhargava66/serdes-validation-framework"
 "Tracker" = "https://github.com/muditbhargava66/serdes-validation-framework/issues"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
-testpaths = [
-    "tests"
-]
+testpaths = ["tests"]
 
 [tool.ruff]
-line-length = 115
+line-length = 130
 target-version = "py310"
+ignore = ["W293", "W291", "F841", "N803", "N806", "B904", "B017"]
+
+# Extend select rules
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "C90",  # mccabe
+    "I",    # isort
+    "N",    # pep8-naming
+    "B",    # flake8-bugbear
+]
+
 exclude = [
     ".git",
     "__pycache__",
@@ -82,15 +97,21 @@ exclude = [
     "build",
     "dist"
 ]
-select = [
-    "E",
-    "F",
-    "W",
-    "C90"
-]
+
+[tool.ruff.format]
+# Quote style configuration
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+# Ignore specific rules in specific files
+# ignore-init-module-imports = true
 
 [tool.isort]
 profile = "black"
+line_length = 130
 
 [tool.black]
-line-length = 115
+line-length = 130

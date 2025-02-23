@@ -1,25 +1,21 @@
 # tests/test_eth_224g_sequence.py
 
-import unittest
-from unittest.mock import patch, MagicMock
-import numpy as np
-from typing import Dict, List, Tuple
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import patch
+
+import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from src.serdes_validation_framework.data_analysis.pam4_analyzer import EVMResults, EyeResults, PAM4Levels
 from src.serdes_validation_framework.test_sequence.eth_224g_sequence import (
+    ComplianceResults,
     Ethernet224GTestSequence,
     TrainingResults,
-    ComplianceResults
 )
-from src.serdes_validation_framework.data_analysis.pam4_analyzer import (
-    PAM4Levels,
-    EVMResults,
-    EyeResults
-)
-from tests.mock_pyvisa import mock_pyvisa
+
 
 class TestEthernet224GTestSequence(unittest.TestCase):
     """Test cases for 224G Ethernet test sequences"""
@@ -30,7 +26,7 @@ class TestEthernet224GTestSequence(unittest.TestCase):
         """Set up test fixtures"""
         self.mock_data_collector = MockDataCollector.return_value
         self.mock_instrument_controller = MockInstrumentController.return_value
-        
+
         # Configure mock responses
         def mock_query(resource: str, query: str) -> str:
             if query == ":WAVeform:DATA?":
@@ -41,7 +37,7 @@ class TestEthernet224GTestSequence(unittest.TestCase):
                 noise = np.random.normal(0, 0.1, num_points)
                 test_data = symbols + noise
                 return ','.join(map(str, test_data))
-            
+
             responses = {
                 '*IDN?': 'Mock Instrument',
                 ':MEASure:EYE:HEIGht?': '0.4',
@@ -51,14 +47,14 @@ class TestEthernet224GTestSequence(unittest.TestCase):
                 ':MEASure:JITTer:DJ?': '0.8e-12'
             }
             return responses.get(query, '0.0')
-            
+
         self.mock_instrument_controller.query_instrument.side_effect = mock_query
-        
+
         # Initialize test sequence
         self.sequence = Ethernet224GTestSequence()
         self.sequence.instrument_controller = self.mock_instrument_controller
         self.sequence.data_collector = self.mock_data_collector
-        
+
         # Test resources
         self.scope = 'GPIB0::7::INSTR'
         self.pattern_gen = 'GPIB0::10::INSTR'
@@ -66,19 +62,19 @@ class TestEthernet224GTestSequence(unittest.TestCase):
     def test_initialize_test_configs(self) -> None:
         """Test test configuration initialization"""
         configs = self.sequence._initialize_test_configs()
-        
+
         # Check required configurations
         self.assertIn('sampling_rate', configs)
         self.assertIn('bandwidth', configs)
         self.assertIn('ui_period', configs)
         self.assertIn('voltage_range', configs)
-        
+
         # Check value types
         self.assertIsInstance(configs['sampling_rate'], float)
         self.assertIsInstance(configs['bandwidth'], float)
         self.assertIsInstance(configs['ui_period'], float)
         self.assertIsInstance(configs['voltage_range'], float)
-        
+
         # Check reasonable values
         self.assertEqual(configs['sampling_rate'], 256e9)
         self.assertEqual(configs['bandwidth'], 120e9)
@@ -92,9 +88,9 @@ class TestEthernet224GTestSequence(unittest.TestCase):
             'timebase': 5e-12,
             'voltage_range': 0.8
         }
-        
+
         self.sequence.configure_scope_for_224g(self.scope, config)
-        
+
         # Verify all commands
         expected_commands = [
             ":ACQuire:SRATe 256000000000.0",
@@ -102,13 +98,13 @@ class TestEthernet224GTestSequence(unittest.TestCase):
             ":TIMebase:SCALe 5E-12",
             ":CHANnel1:RANGe 0.8"
         ]
-        
+
         for cmd in expected_commands:
             self.mock_instrument_controller.send_command.assert_any_call(
                 self.scope,
                 cmd
             )
-        
+
         # Test with invalid config
         with self.assertRaises(AssertionError):
             self.sequence.configure_scope_for_224g(
@@ -123,28 +119,28 @@ class TestEthernet224GTestSequence(unittest.TestCase):
             self.pattern_gen,
             timeout_seconds=5.0
         )
-        
+
         # Check result type
         self.assertIsInstance(results, TrainingResults)
-        
+
         # Verify pattern generator configuration
         self.mock_instrument_controller.send_command.assert_any_call(
             self.pattern_gen,
             ':PATTern:TYPE PRBS31'
         )
-        
+
         # Verify scope configuration
         self.mock_instrument_controller.send_command.assert_any_call(
             self.scope,
             ':ACQuire:POINts 1000000'
         )
-        
+
         # Check results structure
         self.assertIsInstance(results.training_time, float)
         self.assertIsInstance(results.convergence_status, str)
         self.assertTrue(all(isinstance(x, float) for x in results.final_eq_settings))
         self.assertIsInstance(results.adaptation_error, float)
-        
+
         # Test with invalid timeout
         with self.assertRaises(AssertionError):
             self.sequence.run_link_training_test(
@@ -153,19 +149,19 @@ class TestEthernet224GTestSequence(unittest.TestCase):
                 timeout_seconds=-1.0
             )
 
-    def test_measure_pam4_levels(self) -> None:
+    def test_measure_pam4_levels_basic(self) -> None:
         """Test PAM4 level measurements"""
         results = self.sequence.measure_pam4_levels(self.scope)
-        
+
         # Check result type
         self.assertIsInstance(results, PAM4Levels)
-        
+
         # Verify scope configuration
         self.mock_instrument_controller.send_command.assert_any_call(
             self.scope,
             ":ACQuire:SRATe 256000000000.0"
         )
-        
+
         # Check measurements
         self.assertEqual(len(results.level_means), 4)
         self.assertEqual(len(results.level_separations), 3)
@@ -177,21 +173,21 @@ class TestEthernet224GTestSequence(unittest.TestCase):
             self.scope,
             self.pattern_gen
         )
-        
+
         # Check result type
         self.assertIsInstance(results, ComplianceResults)
-        
+
         # Check all components
         self.assertIsInstance(results.pam4_levels, PAM4Levels)
         self.assertIsInstance(results.evm_results, EVMResults)
         self.assertIsInstance(results.eye_results, EyeResults)
         self.assertIsInstance(results.jitter_results, dict)
         self.assertIsInstance(results.test_status, str)
-        
+
         # Check test status
         self.assertIn(results.test_status, ['PASS', 'FAIL'])
 
-    def test_measure_pam4_levels(self) -> None:
+    def test_measure_pam4_levels_realistic(self) -> None:
         """Test PAM4 level measurements"""
         # Create more realistic PAM4 data
         mock_data = np.concatenate([
@@ -200,24 +196,24 @@ class TestEthernet224GTestSequence(unittest.TestCase):
             np.random.normal(1, 0.2, 500),
             np.random.normal(3, 0.2, 500)
         ])
-        
+
         # Add some noise and jitter
         noise = np.random.normal(0, 0.1, len(mock_data))
         mock_data = mock_data + noise
-        
+
         # Convert to string format that matches scope output
         mock_response = ','.join(map(str, mock_data))
         self.mock_instrument_controller.query_instrument.return_value = mock_response
-        
+
         # Run measurement
         results = self.sequence.measure_pam4_levels(self.scope)
-        
+
         # Verify results
         self.assertIsInstance(results, PAM4Levels)
         self.assertEqual(len(results.level_means), 4)
         self.assertEqual(len(results.level_separations), 3)
         self.assertIsInstance(results.uniformity, float)
-        
+
         # Check level ordering
         self.assertTrue(np.all(np.diff(results.level_means) > 0))
 
@@ -225,13 +221,13 @@ class TestEthernet224GTestSequence(unittest.TestCase):
         """Test equalizer tap calculation"""
         # Create test waveform
         test_waveform = np.array([0.0, 1.0, -1.0, 0.5, -0.5], dtype=np.float64)
-        
+
         taps = self.sequence._calculate_equalizer_taps(test_waveform)
-        
+
         # Check tap array properties
         self.assertIsInstance(taps, list)
         self.assertTrue(all(isinstance(tap, float) for tap in taps))
-        
+
         # Test with invalid input
         with self.assertRaises(AssertionError):
             self.sequence._calculate_equalizer_taps(
@@ -245,11 +241,11 @@ class TestEthernet224GTestSequence(unittest.TestCase):
             self.scope,
             timeout_seconds=1.0
         )
-        
+
         # Check waveform properties
         self.assertIsInstance(waveform, np.ndarray)
         self.assertTrue(np.issubdtype(waveform.dtype, np.floating))
-        
+
         # Test with invalid timeout
         with self.assertRaises(AssertionError):
             self.sequence._capture_training_sequence(
@@ -261,18 +257,18 @@ class TestEthernet224GTestSequence(unittest.TestCase):
         """Test training results analysis"""
         # Create test waveform
         test_waveform = np.random.normal(0, 1, 1000).astype(np.float64)
-        
+
         results = self.sequence._analyze_training_results(test_waveform)
-        
+
         # Check result type
         self.assertIsInstance(results, TrainingResults)
-        
+
         # Check result properties
         self.assertIsInstance(results.training_time, float)
         self.assertIsInstance(results.convergence_status, str)
         self.assertIsInstance(results.final_eq_settings, list)
         self.assertIsInstance(results.adaptation_error, float)
-        
+
         # Test with invalid input
         with self.assertRaises(AssertionError):
             self.sequence._analyze_training_results(
@@ -285,15 +281,15 @@ class TestEthernet224GTestSequence(unittest.TestCase):
         self.mock_instrument_controller.send_command.side_effect = Exception("Mock error")
         with self.assertRaises(Exception):
             self.sequence.configure_scope_for_224g(self.scope)
-        
+
         # Reset mock
         self.mock_instrument_controller.send_command.side_effect = None
-        
+
         # Test data collection error
         self.mock_instrument_controller.query_instrument.side_effect = Exception("Mock error")
         with self.assertRaises(Exception):
             self.sequence._capture_training_sequence(self.scope, 1.0)
-        
+
         # Reset mock
         self.mock_instrument_controller.query_instrument.side_effect = None
 

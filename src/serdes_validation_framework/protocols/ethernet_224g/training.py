@@ -1,12 +1,11 @@
 # src/serdes_validation_framework/protocols/ethernet_224g/training.py
 
-from typing import Dict, List, Tuple, Optional, Union, Literal
+import logging
+from dataclasses import dataclass
+from typing import Dict, List, Literal, Optional, Tuple
+
 import numpy as np
 import numpy.typing as npt
-from dataclasses import dataclass
-import logging
-from scipy import signal
-from .constants import TRAINING_PATTERNS, ETHERNET_224G_SPECS
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ class EqualizerConfig:
     convergence_threshold: float      # Convergence criteria
     min_snr: float                    # Minimum required SNR
     algorithm: Literal['lms', 'rls', 'cma']  # Adaptation algorithm
-    
+
     def __post_init__(self) -> None:
         """Validate configuration parameters"""
         assert isinstance(self.fir_taps, int) and self.fir_taps > 0, \
@@ -46,7 +45,7 @@ class EqualizerState:
     dfe_taps: npt.NDArray[np.float64]     # Feedback tap weights
     error_history: List[float]            # Training error history
     correlation_matrix: Optional[npt.NDArray[np.float64]] = None  # For RLS
-    
+
     def __post_init__(self) -> None:
         """Validate equalizer state"""
         assert isinstance(self.fir_taps, np.ndarray) and \
@@ -65,7 +64,7 @@ class EqualizerState:
 
 class EnhancedEqualizer:
     """Advanced adaptive equalizer implementation"""
-    
+
     def __init__(
         self,
         config: Optional[EqualizerConfig] = None
@@ -121,7 +120,7 @@ class EnhancedEqualizer:
             "Target signal must contain floating-point numbers"
         assert len(received_signal) == len(target_signal), \
             "Signal lengths must match"
-        
+
         try:
             if self.config.algorithm == 'lms':
                 return self._train_lms(received_signal, target_signal)
@@ -129,7 +128,7 @@ class EnhancedEqualizer:
                 return self._train_rls(received_signal, target_signal)
             else:  # CMA
                 return self._train_cma(received_signal)
-                
+
         except Exception as e:
             logger.error(f"Training failed: {e}")
             raise
@@ -145,38 +144,38 @@ class EnhancedEqualizer:
         try:
             output = np.zeros_like(received_signal)
             dfe_memory = np.zeros(self.config.dfe_taps)
-            
+
             for i in range(self.config.fir_taps, len(received_signal)):
                 # FIR filtering
                 fir_input = received_signal[i-self.config.fir_taps:i]
                 fir_output = np.dot(self.state.fir_taps, fir_input)
-                
+
                 # DFE correction
                 dfe_correction = np.dot(self.state.dfe_taps, dfe_memory)
                 output[i] = fir_output + dfe_correction
-                
+
                 # Error calculation
                 error = target_signal[i] - output[i]
                 self.state.error_history.append(float(error))
-                
+
                 # Update FIR taps
                 self.state.fir_taps += self.config.adaptation_rate * error * fir_input
-                
+
                 # Update DFE taps
                 self.state.dfe_taps += self.config.adaptation_rate * error * dfe_memory
-                
+
                 # Update DFE memory
                 dfe_memory[1:] = dfe_memory[:-1]
                 dfe_memory[0] = output[i]
-                
+
                 # Check convergence
                 if len(self.state.error_history) > 100:
                     recent_error = np.mean(np.abs(self.state.error_history[-100:]))
                     if recent_error < self.config.convergence_threshold:
                         break
-            
+
             return output, self.state
-            
+
         except Exception as e:
             logger.error(f"LMS training failed: {e}")
             raise
@@ -192,34 +191,34 @@ class EnhancedEqualizer:
         try:
             output = np.zeros_like(received_signal)
             forgetting_factor = 0.99  # Typical RLS forgetting factor
-            
+
             for i in range(self.config.fir_taps, len(received_signal)):
                 # Input vector
                 input_vector = received_signal[i-self.config.fir_taps:i]
-                
+
                 # Kalman gain calculation
                 P = self.state.correlation_matrix
                 k = P @ input_vector / (forgetting_factor + input_vector @ P @ input_vector)
-                
+
                 # Output and error
                 output[i] = np.dot(self.state.fir_taps, input_vector)
                 error = target_signal[i] - output[i]
                 self.state.error_history.append(float(error))
-                
+
                 # Update taps
                 self.state.fir_taps += k * error
-                
+
                 # Update correlation matrix
                 self.state.correlation_matrix = (P - np.outer(k, input_vector @ P)) / forgetting_factor
-                
+
                 # Check convergence
                 if len(self.state.error_history) > 100:
                     recent_error = np.mean(np.abs(self.state.error_history[-100:]))
                     if recent_error < self.config.convergence_threshold:
                         break
-            
+
             return output, self.state
-            
+
         except Exception as e:
             logger.error(f"RLS training failed: {e}")
             raise
@@ -234,26 +233,26 @@ class EnhancedEqualizer:
         try:
             output = np.zeros_like(received_signal)
             target_modulus = 1.0  # Normalized target amplitude
-            
+
             for i in range(self.config.fir_taps, len(received_signal)):
                 input_vector = received_signal[i-self.config.fir_taps:i]
                 output[i] = np.dot(self.state.fir_taps, input_vector)
-                
+
                 # CMA error
                 error = target_modulus - output[i]**2
                 self.state.error_history.append(float(error))
-                
+
                 # Update taps
                 self.state.fir_taps += self.config.adaptation_rate * error * output[i] * input_vector
-                
+
                 # Check convergence
                 if len(self.state.error_history) > 100:
                     recent_error = np.mean(np.abs(self.state.error_history[-100:]))
                     if recent_error < self.config.convergence_threshold:
                         break
-            
+
             return output, self.state
-            
+
         except Exception as e:
             logger.error(f"CMA training failed: {e}")
             raise
@@ -273,26 +272,26 @@ class EnhancedEqualizer:
         """
         assert np.issubdtype(signal.dtype, np.floating), \
             "Signal must contain floating-point numbers"
-        
+
         try:
             output = np.zeros_like(signal)
             dfe_memory = np.zeros(self.config.dfe_taps)
-            
+
             for i in range(self.config.fir_taps, len(signal)):
                 # FIR filtering
                 fir_input = signal[i-self.config.fir_taps:i]
                 fir_output = np.dot(self.state.fir_taps, fir_input)
-                
+
                 # DFE correction
                 dfe_correction = np.dot(self.state.dfe_taps, dfe_memory)
                 output[i] = fir_output + dfe_correction
-                
+
                 # Update DFE memory
                 dfe_memory[1:] = dfe_memory[:-1]
                 dfe_memory[0] = output[i]
-            
+
             return output
-            
+
         except Exception as e:
             logger.error(f"Equalization failed: {e}")
             raise
@@ -316,13 +315,13 @@ class EnhancedEqualizer:
             # Calculate SNR improvement
             original_snr = self._calculate_snr(original_signal)
             equalized_snr = self._calculate_snr(equalized_signal)
-            
+
             # Calculate MSE
             mse = np.mean((equalized_signal - np.mean(equalized_signal))**2)
-            
+
             # Calculate convergence time
             convergence_time = len(self.state.error_history) / len(original_signal)
-            
+
             return {
                 'original_snr_db': float(original_snr),
                 'equalized_snr_db': float(equalized_snr),
@@ -330,7 +329,7 @@ class EnhancedEqualizer:
                 'mse': float(mse),
                 'convergence_time': float(convergence_time)
             }
-            
+
         except Exception as e:
             logger.error(f"Performance analysis failed: {e}")
             raise

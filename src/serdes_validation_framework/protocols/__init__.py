@@ -7,7 +7,7 @@ This package contains protocol-specific implementations and specifications
 for various high-speed serial interfaces.
 """
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 # Protocol registry
 SUPPORTED_PROTOCOLS: Dict[str, Dict[str, Any]] = {

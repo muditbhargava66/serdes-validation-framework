@@ -8,3 +8,6 @@ mock
 tox
 pytest
 zeroconf
+numpy
+scipy>=1.13.1
+scikit-learn

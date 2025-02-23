@@ -1,17 +1,15 @@
 # tests/test_test_sequence.py
 
-import unittest
-from unittest.mock import patch, MagicMock
 import logging
-import numpy as np
-from typing import Dict, List, Any
-import sys
 import os
+import sys
+import unittest
+from typing import Dict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.serdes_validation_framework.test_sequence.sequencer import TestSequencer
-from src.serdes_validation_framework.data_analysis.analyzer import DataAnalyzer
+
 
 class MockInstrumentController:
     """Mock controller for testing"""
@@ -29,17 +27,17 @@ class MockInstrumentController:
     def connect_instrument(self, resource_name: str) -> None:
         """Mock connect instrument"""
         self.connected_instruments[resource_name] = True
-        
+
     def disconnect_instrument(self, resource_name: str) -> None:
         """Mock disconnect instrument"""
         if resource_name in self.connected_instruments:
             del self.connected_instruments[resource_name]
-            
+
     def send_command(self, resource_name: str, command: str) -> None:
         """Mock send command"""
         if resource_name not in self.connected_instruments:
             raise ValueError(f"Instrument {resource_name} not connected")
-            
+
     def query_instrument(self, resource_name: str, command: str) -> str:
         """Mock query with numeric responses"""
         if resource_name not in self.connected_instruments:
@@ -53,13 +51,13 @@ class TestTestSequencer(unittest.TestCase):
         """Set up test fixtures"""
         # Create mock controller with proper responses
         self.mock_controller = MockInstrumentController()
-        
+
         # Initialize test sequencer with mock controller
         self.test_sequencer = TestSequencer(controller=self.mock_controller)
-        
+
         # Test resource names
         self.test_resources = ['GPIB::1::INSTR', 'GPIB::2::INSTR']
-        
+
         # Pre-connect instruments for some tests
         for resource in self.test_resources:
             self.mock_controller.connect_instrument(resource)
@@ -85,7 +83,7 @@ class TestTestSequencer(unittest.TestCase):
             {'resource': 'GPIB::2::INSTR', 'command': '*IDN?', 'action': 'query'},
             {'resource': 'GPIB::2::INSTR', 'command': 'MEASure:VOLTage:DC?', 'action': 'query'}
         ]
-        
+
         results = self.test_sequencer.run_sequence(sequence)
         self.assertEqual(results['GPIB::2::INSTR'], '0.123')
         self.assertIn('GPIB::2::INSTR', self.test_sequencer.instruments)
@@ -98,7 +96,7 @@ class TestTestSequencer(unittest.TestCase):
             'MEASure:VOLTage:DC?',
             'voltage'
         )
-        
+
         self.assertIsNotNone(stats)
         self.assertIn('mean', stats)
         self.assertEqual(float(stats['mean']), 0.123)
@@ -107,15 +105,15 @@ class TestTestSequencer(unittest.TestCase):
         """Test cleanup functionality"""
         # Ensure instruments are connected
         self.test_sequencer.setup_instruments(self.test_resources)
-        
+
         # Verify initial state
         for resource in self.test_resources:
             self.assertIn(resource, self.test_sequencer.instruments)
             self.assertIn(resource, self.mock_controller.connected_instruments)
-            
+
         # Perform cleanup
         self.test_sequencer.cleanup(self.test_resources)
-        
+
         # Verify cleanup
         for resource in self.test_resources:
             self.assertNotIn(resource, self.test_sequencer.instruments)
@@ -126,11 +124,11 @@ class TestTestSequencer(unittest.TestCase):
         # Test invalid resource name
         with self.assertRaises(ValueError):
             self.test_sequencer.setup_instruments([''])
-            
+
         # Test invalid sequence
         with self.assertRaises(ValueError):
             self.test_sequencer.run_sequence([])
-            
+
         # Test disconnected instrument
         with self.assertRaises(ValueError):
             self.test_sequencer.collect_and_analyze_data(

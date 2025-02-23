@@ -1,9 +1,11 @@
 # src/serdes_validation_framework/protocols/ethernet_224g/constants.py
 
-from typing import Dict, List, Tuple, Final
 from dataclasses import dataclass
+from typing import Dict, Final, Tuple
+
 import numpy as np
 import numpy.typing as npt
+
 
 @dataclass(frozen=True)
 class PAM4Specs:
@@ -73,7 +75,7 @@ def validate_pam4_levels(levels: npt.NDArray[np.float64]) -> bool:
     assert isinstance(levels, np.ndarray), "Levels must be a numpy array"
     assert np.issubdtype(levels.dtype, np.floating), "Levels must be floating-point"
     assert len(levels) == 4, "Must have exactly 4 PAM4 levels"
-    
+
     specs = ETHERNET_224G_SPECS['pam4']
     level_gaps = np.diff(sorted(levels))
     return all(gap >= specs.MIN_LEVEL_SEPARATION for gap in level_gaps)
@@ -92,7 +94,7 @@ def calculate_ui_parameters(
     """
     assert isinstance(symbol_rate, float), "Symbol rate must be a float"
     assert symbol_rate > 0, "Symbol rate must be positive"
-    
+
     ui_period = 1.0 / symbol_rate
     ui_tolerance = ui_period * 0.1  # 10% tolerance
     return float(ui_period), float(ui_tolerance)

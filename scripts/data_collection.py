@@ -5,10 +5,10 @@ This script demonstrates basic data collection functionality with support for bo
 real and mock hardware modes.
 """
 
-import sys
-import os
 import logging
-from typing import Dict, Any
+import os
+import sys
+from typing import Any, Dict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -38,7 +38,7 @@ def collect_measurements(collector: DataCollector, address: str) -> Dict[str, An
         'Eye Height': ':MEASure:EYE:HEIGht?',
         'Eye Width': ':MEASure:EYE:WIDTh?'
     }
-    
+
     results = {}
     for name, command in measurements.items():
         try:
@@ -48,33 +48,33 @@ def collect_measurements(collector: DataCollector, address: str) -> Dict[str, An
         except Exception as e:
             logger.error(f"Failed to collect {name}: {e}")
             results[name] = f"Error: {str(e)}"
-            
+
     return results
 
 def main() -> None:
     """Main function with enhanced error handling"""
     collector = None
     address = 'GPIB::1::INSTR'
-    
+
     try:
         # Initialize controller and collector
         controller = get_instrument_controller()
         collector = DataCollector(controller)
-        
+
         # Connect to instrument
         collector.connect_instrument(address)
-        
+
         # Collect measurements
         results = collect_measurements(collector, address)
-        
+
         # Display results
         print("\nData Collection Results:")
         print("-" * 50)
         print(f"Mode: {'mock' if 'Mock' in results.get('ID Query', '') else 'real'}")
-        
+
         for name, value in results.items():
             print(f"{name}: {value}")
-            
+
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         sys.exit(1)
