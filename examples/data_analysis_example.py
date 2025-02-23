@@ -1,3 +1,23 @@
+"""
+SerDes Data Analysis Example Script
+
+This script demonstrates basic data analysis capabilities of the SerDes validation framework.
+It provides an example of how to:
+- Load and process signal strength data
+- Compute basic statistical measures
+- Generate histogram visualizations of the data
+
+The example uses a simple dataset but illustrates the core functionality
+of the DataAnalyzer class for signal analysis.
+
+Dependencies:
+    - logging
+    - src.serdes_validation_framework
+
+Author: Mudit Bhargava
+Date: February 2025
+"""
+
 import logging
 import os
 import sys

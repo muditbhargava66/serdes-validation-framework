@@ -1,11 +1,29 @@
 """
-224G Ethernet Validation Example
+224G Ethernet Validation Example Script
 
-This example demonstrates the use of the SerDes validation framework for 224G
-Ethernet testing, including link training and compliance measurements.
+A comprehensive example demonstrating 224G Ethernet testing capabilities using
+the SerDes validation framework. Features include:
+- Link training simulation
+- PAM4 signal generation
+- Compliance testing
+- Advanced visualization
+- Mock instrument control
 
-The example uses mock controllers for demonstration, generating realistic
-PAM4 signals for testing without requiring physical hardware.
+The script provides realistic mock responses for:
+- Eye diagram measurements
+- Jitter analysis
+- PAM4 level measurements
+- Link training sequences
+
+Key Features:
+    - Automated test sequencing
+    - Real-time data visualization
+    - Comprehensive error handling
+    - Test results storage and analysis
+    - Mock instrument simulation
+
+Author: Mudit Bhargava
+Date: February 2025
 """
 
 import json

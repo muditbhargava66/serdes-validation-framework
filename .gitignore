@@ -88,6 +88,8 @@ venv.bak/
 
 # mkdocs documentation
 /site
+docs/_build/
+docs/__pycache__/
 
 # mypy
 .mypy_cache/

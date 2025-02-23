@@ -1,13 +1,21 @@
-# SerDes Validation Framework
+<div align="center">
 
-![Banner](docs/images/serdes-framework-banner.png)
+# 🚀 SerDes Validation Framework
 
 [![CI](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml)
 [![Lint](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Python](https://img.shields.io/badge/python-3.10-blue.svg)
+[![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11%20|%203.12-blue.svg)](https://www.python.org/)
+[![Code Coverage](https://img.shields.io/badge/coverage-98%25-green)](https://github.com/muditbhargava66/serdes-validation-framework/actions)
+[![Documentation](https://img.shields.io/badge/docs-readthedocs.io-blue)](https://serdes-validation-framework.readthedocs.io/)
+[![Last Commit](https://img.shields.io/github/last-commit/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/commits/main)
+[![Contributors](https://img.shields.io/github/contributors/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/graphs/contributors)
 
-This project provides a comprehensive framework for validating high-speed SerDes protocols. It includes tools for data collection, data analysis, instrument control, and running test sequences.
+**A comprehensive framework for validating high-speed SerDes protocols with automated data collection, advanced signal analysis, and multi-vendor instrument control.**
+
+![Banner](docs/images/serdes-framework-banner.png)
+
+</div>
 
 ## Features
 
@@ -19,9 +27,9 @@ This project provides a comprehensive framework for validating high-speed SerDes
 ## Installation
 
 ### Prerequisites
-
-- Python 3.10 or higher
+- Python 3.9+ (recommended 3.10)
 - Git
+- VISA Library (for instrument control)
 
 ### Steps
 
@@ -120,10 +128,6 @@ We welcome contributions from the community. Please read our [contributing guide
     tox
     ```
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
 ## Project Structure
 
 ```plaintext
@@ -198,11 +202,30 @@ serdes-validation-framework/
 ```
 
 ## Community and Support
+For any questions, issues, or contributions, please open an issue on the [GitHub repository](https://github.com/muditbhargava66/serdes-validation-framework/issues). Contributions and feedback are always welcome.
 
-For any questions, issues, or contributions, please open an issue on the [GitHub repository](https://github.com/muditbhargava66/serdes-validation-framework/issues).
+## 📄 License
+Distributed under the MIT License. See `LICENSE` for more information.
 
----
+<div align="center">
 
-Enjoy using the SerDes Validation Framework! Contributions and feedback are always welcome.
+## Star History
+<a href="https://star-history.com/#muditbhargava66/serdes-validation-framework&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=muditbhargava66/serdes-validation-framework&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=muditbhargava66/serdes-validation-framework&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=muditbhargava66/serdes-validation-framework&type=Date" />
+ </picture>
+</a>
 
----
+---  
+
+  
+**Enjoy using the SerDes Validation Framework?**  
+⭐️ Star the repo and consider contributing!  
+  
+📫 **Contact**: [@muditbhargava66](https://github.com/muditbhargava66) 
+  
+© 2025 Mudit Bhargava. [MIT License](LICENSE)  
+<!-- Copyright symbol using HTML entity for better compatibility -->
+</div>

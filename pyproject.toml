@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=65.0", "wheel", "setuptools_scm>=7.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,7 @@ authors = [
     {name = "Mudit Bhargava", email = "muditbhargava666@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9,<3.13"
 license = {text = "MIT"}
 keywords = [
     "SerDes",
@@ -22,7 +22,6 @@ keywords = [
     "GPIB",
     "automation"
 ]
-
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -30,35 +29,55 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development",
     "Topic :: System :: Hardware :: Hardware Drivers"
 ]
-
 dependencies = [
-    "pyvisa",
-    "pyvisa-py",
-    "pandas",
+    "numpy>=1.21.0",
+    "scipy>=1.13.1",
+    "pandas>=1.7.0",
     "matplotlib",
     "seaborn",
+    "scikit-learn",
+    "pyvisa>=1.11.0",
+    "pyvisa-py",
+    "pyusb",
+    "python-usbtmc",
     "gpib-ctypes",
     "mock",
-    "pytest",
     "zeroconf",
-    "numpy",
-    "scipy>=1.13.1",
-    "scikit-learn"
+    "pytest>=7.1.1",
+    "pytest-cov",
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "myst-parser>=0.18.1",
+    "sphinx-markdown-tables",
+    "sphinx-design",
+    "sphinx-copybutton",
+    "sphinx-autobuild"
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/muditbhargava66/serdes-validation-framework"
-"Documentation" = "https://github.com/muditbhargava66/serdes-validation-framework/tree/main/docs"
+"Documentation" = "https://serdes-validation-framework.readthedocs.io/"
 "Source" = "https://github.com/muditbhargava66/serdes-validation-framework"
 "Tracker" = "https://github.com/muditbhargava66/serdes-validation-framework/issues"
+
+[project.optional-dependencies]
+dev = [
+  "tox>=4.0",
+  "pre-commit>=3.0",
+  "black>=24.0",
+  "mypy>=1.8.0",
+  "ruff>=0.4.2",
+  "pytest-cov>=5.0",
+  "uv>=0.1.0"
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -67,15 +86,37 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q"
+minversion = "7.1"
+addopts = "-ra -q --cov=src --cov-report=term-missing"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:"
+]
+
+[tool.black]
+line-length = 130
+
+[tool.isort]
+profile = "black"
+line_length = 130
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 130
 target-version = "py310"
 ignore = ["W293", "W291", "F841", "N803", "N806", "B904", "B017"]
-
 # Extend select rules
 select = [
     "E",    # pycodestyle errors
@@ -86,7 +127,6 @@ select = [
     "N",    # pep8-naming
     "B",    # flake8-bugbear
 ]
-
 exclude = [
     ".git",
     "__pycache__",
@@ -97,21 +137,3 @@ exclude = [
     "build",
     "dist"
 ]
-
-[tool.ruff.format]
-# Quote style configuration
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
-[tool.ruff.lint]
-# Ignore specific rules in specific files
-# ignore-init-module-imports = true
-
-[tool.isort]
-profile = "black"
-line_length = 130
-
-[tool.black]
-line-length = 130
