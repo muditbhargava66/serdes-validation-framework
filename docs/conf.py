@@ -12,11 +12,11 @@ release = '1.2.0'
 
 # Extensions needed for markdown support
 extensions = [
+    'sphinx_markdown_tables',     # Markdown tables
     'myst_parser',                # Markdown support
     'sphinx.ext.autodoc',         # API documentation
     'sphinx.ext.viewcode',        # View source code
     'sphinx.ext.napoleon',        # Google style docstrings
-    'sphinx_markdown_tables',     # Markdown tables
     'sphinx_copybutton',         # Copy button for code blocks
     'sphinx_design',             # UI components
 ]
@@ -60,4 +60,12 @@ html_sidebars = {
         'sidebar/navigation.html',
         'sidebar/scroll-end.html',
     ]
+}
+
+# GitHub integration
+html_context = {
+    'display_github': True,
+    'github_user': 'muditbhargava66',
+    'github_repo': 'serdes-validation-framework',
+    'github_version': 'main/docs/',
 }

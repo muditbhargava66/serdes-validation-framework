@@ -108,3 +108,11 @@ dmypy.json
 # OS system files
 .DS_Store
 **/.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.user
