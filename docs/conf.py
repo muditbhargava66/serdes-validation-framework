@@ -46,7 +46,7 @@ suppress_warnings = [
 # Templates and themes
 templates_path = ['_templates']
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = []  # Disable static path
 
 # Files to exclude
 exclude_patterns = [
