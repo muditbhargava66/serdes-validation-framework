@@ -435,5 +435,3 @@ def analyze_pam4_signal(
 
 - [224G Ethernet API](eth_224g.md)
 - [PAM4 Analysis Tutorial](../tutorials/pam4_analysis.md)
-
----

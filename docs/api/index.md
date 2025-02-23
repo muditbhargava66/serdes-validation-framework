@@ -144,7 +144,7 @@ class MeasurementResults:
 
 ## Module Organization
 
-```plaintext
+```
 serdes_validation_framework/
 ├── instrument_control/
 │   ├── controller.py        # Base controller
@@ -238,16 +238,8 @@ Complete examples are available in the tutorials:
 - [224G Validation](../tutorials/224g_validation.md)
 - [PAM4 Analysis](../tutorials/pam4_analysis.md)
 
-## API Reference
-
-- [Complete Class Reference](classes.md)
-- [Module Reference](modules.md)
-- [Error Reference](errors.md)
-
 ## See Also
 
 - [Installation Guide](../INSTALL.md)
 - [Usage Guide](../USAGE.md)
 - [Contributing Guide](../CONTRIBUTING.md)
-
----

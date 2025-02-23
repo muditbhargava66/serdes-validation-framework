@@ -456,5 +456,3 @@ def verify_mock_responses(
 - [Environment Configuration Guide](environment_vars.md)
 - [Troubleshooting Guide](troubleshooting.md)
 - [Mock Testing Tutorial](../tutorials/mock_testing.md)
-
----

@@ -462,5 +462,3 @@ def run_hardware_example() -> None:
 - [Installation Guide](INSTALL.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Mock Testing Tutorial](tutorials/mock_testing.md)
-
----

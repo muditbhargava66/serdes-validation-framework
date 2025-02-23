@@ -36,6 +36,12 @@ myst_enable_extensions = [
     'substitution',         # Substitutions
     'tasklist',            # Task lists
 ]
+myst_heading_anchors = 6  # Enable heading anchors up to 6 levels
+myst_footnote_transition = False  # Disable automatic footnote transitions
+suppress_warnings = [
+    "myst.xref_missing", 
+    "myst.header"
+]
 
 # Templates and themes
 templates_path = ['_templates']
@@ -43,7 +49,13 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # Files to exclude
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = [
+    '_build', 
+    'Thumbs.db', 
+    '.DS_Store',
+    'README.md'
+]
+
 
 # Source file configurations
 source_suffix = {

@@ -435,5 +435,3 @@ def run_test_sequence(
 - [Mock Controller Documentation](mock_controller.md)
 - [Testing Guide](../guides/testing.md)
 - [Equipment Setup](../guides/instrument_setup.md)
-
----

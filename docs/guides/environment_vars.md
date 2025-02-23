@@ -355,8 +355,6 @@ def configure_environment() -> Dict[str, Any]:
 
 ## See Also
 
-- [Mock Testing Guide](mock_testing.md)
+- [Mock Testing Guide](../tutorials/mock_testing.md)
 - [Instrument Setup Guide](instrument_setup.md)
 - [Troubleshooting Guide](troubleshooting.md)
-
----

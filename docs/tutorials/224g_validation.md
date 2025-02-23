@@ -408,5 +408,3 @@ def validate_results(
 - IEEE 802.3 224G Ethernet Specification
 - High-Speed Serial Link Design Guide
 - Equipment Manuals and Specifications
-
----

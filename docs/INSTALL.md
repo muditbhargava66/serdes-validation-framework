@@ -313,5 +313,3 @@ def configure_hardware_testing(
 - [Contributing Guide](CONTRIBUTING.md)
 - [Environment Configuration](guides/environment_vars.md)
 - [Troubleshooting Guide](guides/troubleshooting.md)
-
----

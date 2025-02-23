@@ -346,5 +346,3 @@ def analyze_pam4_signal() -> None:
 - [Mock Controller Documentation](../api/mock_controller.md)
 - [PAM4 Analysis Documentation](../api/pam4_analysis.md)
 - [Environment Configuration](../guides/environment_vars.md)
-
----
