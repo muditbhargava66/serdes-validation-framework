@@ -22,39 +22,33 @@ Environment Variables:
         - If not set, automatically detects available hardware
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from typing import Dict, List, Tuple, Optional, Any, Union
-import logging
-import sys
-import os
-import json
 import argparse
+import json
+import logging
+import os
 import re
+import sys
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass, field
+from typing import Any, Dict, Optional
+
+import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.serdes_validation_framework.test_sequence.eth_224g_sequence import (
-    Ethernet224GTestSequence,
-    TrainingResults,
-    ComplianceResults
-)
-from src.serdes_validation_framework.instrument_control.scope_224g import (
-    HighBandwidthScope,
-    ScopeConfig
-)
-from src.serdes_validation_framework.protocols.ethernet_224g import (
-    ComplianceSpecification,
-    ETHERNET_224G_SPECS
-)
 from src.serdes_validation_framework.instrument_control.mock_controller import (
+    InstrumentMode,
+    MockInstrumentController,
     get_instrument_controller,
     get_instrument_mode,
-    InstrumentMode,
-    MockInstrumentController
+)
+from src.serdes_validation_framework.instrument_control.scope_224g import HighBandwidthScope, ScopeConfig
+from src.serdes_validation_framework.protocols.ethernet_224g import ComplianceSpecification
+from src.serdes_validation_framework.test_sequence.eth_224g_sequence import (
+    ComplianceResults,
+    Ethernet224GTestSequence,
+    TrainingResults,
 )
 
 # Get the controller based on environment and availability
@@ -98,7 +92,7 @@ class ValidationConfig:
     debug_mode: bool = False
     config_file: Optional[str] = None
     force_mock: bool = False
-    
+
     # Validation parameters
     min_test_duration: float = field(default=1.0, init=False)
     max_test_duration: float = field(default=3600.0, init=False)
@@ -106,7 +100,7 @@ class ValidationConfig:
         default=r'^(GPIB|USB|TCPIP|VXI|ASRL)\d*::.+::INSTR$',
         init=False
     )
-    
+
     def __post_init__(self) -> None:
         """
         Validate configuration parameters after initialization
@@ -133,7 +127,7 @@ class ValidationConfig:
         """
         if not isinstance(address, str):
             raise ValidationError(f"{device} address must be a string")
-            
+
         if not re.match(self.valid_visa_pattern, address):
             raise ValidationError(
                 f"{device} VISA address '{address}' is invalid. "
@@ -149,7 +143,7 @@ class ValidationConfig:
         """
         if not isinstance(self.test_duration, (int, float)):
             raise ValidationError("Test duration must be a number")
-        
+
         if not self.min_test_duration <= self.test_duration <= self.max_test_duration:
             raise ValidationError(
                 f"Test duration must be between {self.min_test_duration} "
@@ -212,7 +206,7 @@ def validate_config_schema(config: Dict[str, Any]) -> None:
         'test_params': {'duration', 'compliance_limits'},
         'output': {'save_plots', 'save_raw_data'}
     }
-    
+
     for section, keys in required_keys.items():
         if section not in config:
             raise ValidationError(f"Missing required section '{section}'")
@@ -242,7 +236,7 @@ def validate_test_requirements(
     if isinstance(scope.controller, MockInstrumentController):
         logger.info("Skipping hardware validation in mock mode")
         return
-        
+
     # Validate scope bandwidth
     scope_config = scope.default_config
     if scope_config.bandwidth < 100e9:  # 100 GHz minimum
@@ -250,7 +244,7 @@ def validate_test_requirements(
             f"Insufficient scope bandwidth: {scope_config.bandwidth/1e9:.1f} GHz. "
             "Requires at least 100 GHz"
         )
-    
+
     # Validate sample rate
     if scope_config.sampling_rate < 200e9:  # 200 GSa/s minimum
         raise ValidationError(
@@ -272,7 +266,7 @@ def parse_arguments() -> ValidationConfig:
         description='224G Ethernet Validation Test Script',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    
+
     # Equipment configuration
     equipment_group = parser.add_argument_group('Equipment Configuration')
     equipment_group.add_argument(
@@ -290,7 +284,7 @@ def parse_arguments() -> ValidationConfig:
         action='store_true',
         help='Force mock mode operation'
     )
-    
+
     # Test configuration
     test_group = parser.add_argument_group('Test Configuration')
     test_group.add_argument(
@@ -309,7 +303,7 @@ def parse_arguments() -> ValidationConfig:
         action='store_true',
         help='Skip compliance tests'
     )
-    
+
     # Output configuration
     output_group = parser.add_argument_group('Output Configuration')
     output_group.add_argument(
@@ -322,7 +316,7 @@ def parse_arguments() -> ValidationConfig:
         action='store_true',
         help='Disable result plotting'
     )
-    
+
     # Advanced options
     advanced_group = parser.add_argument_group('Advanced Options')
     advanced_group.add_argument(
@@ -334,9 +328,9 @@ def parse_arguments() -> ValidationConfig:
         '--config',
         help='Path to JSON configuration file'
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Create and validate configuration
         config = ValidationConfig(
@@ -352,13 +346,13 @@ def parse_arguments() -> ValidationConfig:
             force_mock=args.force_mock
         )
         return config
-        
+
     except ValidationError as e:
         parser.error(str(e))
 
 class ValidationTest:
     """224G Ethernet validation test controller"""
-    
+
     def __init__(self, config: ValidationConfig) -> None:
         """
         Initialize validation test with validated configuration
@@ -370,7 +364,7 @@ class ValidationTest:
             ValidationError: If initialization fails
         """
         self.config = config
-        
+
         try:
             # Set up logging
             log_level = logging.DEBUG if config.debug_mode else logging.INFO
@@ -382,37 +376,37 @@ class ValidationTest:
                     logging.FileHandler(f"validation_{datetime.now():%Y%m%d_%H%M%S}.log")
                 ]
             )
-            
+
             # Initialize paths
             self.output_dir = Path(config.output_dir)
             self.output_dir.mkdir(parents=True, exist_ok=True)
             self.session_dir = self.output_dir / datetime.now().strftime("%Y%m%d_%H%M%S")
             self.session_dir.mkdir(parents=True)
-            
+
             # Load external configuration if provided
             self.test_config = {}
             if config.config_file:
                 self.test_config = self._load_and_validate_config()
-            
+
             # Force mock mode if requested
             if config.force_mock:
                 os.environ['SVF_MOCK_MODE'] = '1'
                 logger.info("Forcing mock mode operation")
-            
+
             # Initialize equipment using the global controller
             self.scope = HighBandwidthScope(config.scope_address, controller=controller)
             self.sequencer = Ethernet224GTestSequence()
             self.compliance_spec = ComplianceSpecification()
-            
+
             # Validate equipment requirements
             if mode != InstrumentMode.MOCK:
                 validate_test_requirements(self.scope, config.pattern_gen_address)
             else:
                 logger.info("Skipping hardware requirements validation in mock mode")
-            
+
             logger.info(f"Validation test initialized with session dir: {self.session_dir}")
             logger.info(f"Operating in {mode.value} mode")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize validation test: {e}")
             raise
@@ -430,15 +424,15 @@ class ValidationTest:
         try:
             with open(self.config.config_file, 'r') as f:
                 config = json.load(f)
-            
+
             # Validate schema
             validate_config_schema(config)
-            
+
             # Validate specific parameters
             self._validate_config_parameters(config)
-            
+
             return config
-            
+
         except Exception as e:
             logger.error(f"Failed to load configuration: {e}")
             raise
@@ -460,17 +454,17 @@ class ValidationTest:
             'eye_height_min': (0.0, 1.0),
             'jitter_max_ps': (0.0, 100.0)
         }
-        
+
         for limit_name, (min_val, max_val) in required_limits.items():
             if limit_name not in limits:
                 raise ValidationError(f"Missing compliance limit: {limit_name}")
-            
+
             value = limits[limit_name]
             if not isinstance(value, (int, float)):
                 raise ValidationError(
                     f"Invalid type for {limit_name}: {type(value)}"
                 )
-            
+
             if not min_val <= value <= max_val:
                 raise ValidationError(
                     f"{limit_name} must be between {min_val} and {max_val}"
@@ -489,22 +483,22 @@ class ValidationTest:
         try:
             if 'compliance' in results['tests']:
                 compliance = results['tests']['compliance']
-                
+
                 # Validate EVM
                 evm = compliance['evm']['rms_percent']
                 if evm > self.test_config.get('test_params', {}).get('compliance_limits', {}).get('evm_max', 5.0):
                     raise ValidationError(f"EVM {evm:.2f}% exceeds maximum limit")
-                
+
                 # Validate eye height
                 eye_height = compliance['eye_diagram']['worst_height']
                 if eye_height < self.test_config.get('test_params', {}).get('compliance_limits', {}).get('eye_height_min', 0.2):
                     raise ValidationError(f"Eye height {eye_height:.3f} below minimum")
-                
+
                 # Validate jitter
                 jitter_ps = compliance['jitter']['tj'] * 1e12  # Convert to ps
                 if jitter_ps > self.test_config.get('test_params', {}).get('compliance_limits', {}).get('jitter_max_ps', 50.0):
                     raise ValidationError(f"Total jitter {jitter_ps:.2f}ps exceeds maximum")
-            
+
         except Exception as e:
             logger.error(f"Results validation failed: {e}")
             raise
@@ -522,30 +516,30 @@ class ValidationTest:
         try:
             # Validate results before saving
             self.validate_results(results)
-            
+
             # Save to JSON file
             results_file = self.session_dir / 'validation_results.json'
             with open(results_file, 'w') as f:
                 json.dump(results, f, indent=4)
-            
+
             # Save summary report
             summary_file = self.session_dir / 'validation_summary.txt'
             with open(summary_file, 'w') as f:
                 f.write("224G Ethernet Validation Test Summary\n")
                 f.write("=====================================\n\n")
-                
+
                 f.write(f"Test Date: {datetime.now():%Y-%m-%d %H:%M:%S}\n")
-                f.write(f"Equipment:\n")
+                f.write("Equipment:\n")
                 f.write(f"  Scope: {self.config.scope_address}\n")
                 f.write(f"  Pattern Generator: {self.config.pattern_gen_address}\n\n")
-                
+
                 if 'link_training' in results['tests']:
                     training = results['tests']['link_training']
                     f.write("Link Training Results:\n")
                     f.write(f"  Status: {training['status']}\n")
                     f.write(f"  Training Time: {training['training_time']:.2f} s\n")
                     f.write(f"  Final Error: {training['final_error']:.6f}\n\n")
-                
+
                 if 'compliance' in results['tests']:
                     compliance = results['tests']['compliance']
                     f.write("Compliance Test Results:\n")
@@ -557,9 +551,9 @@ class ValidationTest:
                     f.write("\nJitter Components:\n")
                     for jitter_type, value in compliance['jitter'].items():
                         f.write(f"  {jitter_type.upper()}: {value:.3f} ps\n")
-            
+
             logger.info(f"Results saved to {self.session_dir}")
-            
+
         except Exception as e:
             logger.error(f"Failed to save results: {e}")
             raise
@@ -589,14 +583,14 @@ class ValidationTest:
                 },
                 'tests': {}
             }
-            
+
             # Setup phase
             logger.info("Setting up instruments...")
             self.sequencer.setup_instruments([
                 self.config.scope_address,
                 self.config.pattern_gen_address
             ])
-            
+
             # Configure scope with validation
             scope_config = ScopeConfig(
                 sampling_rate=256e9,
@@ -605,8 +599,8 @@ class ValidationTest:
                 voltage_range=0.8
             )
             self.scope.configure_for_224g(scope_config)
-            
-            # Link training test if not skipped 
+
+            # Link training test if not skipped
             if not self.config.skip_training:
                 logger.info("Running link training test...")
                 training_results = self.sequencer.run_link_training_test(
@@ -617,10 +611,10 @@ class ValidationTest:
                 results['tests']['link_training'] = self._process_training_results(
                     training_results
                 )
-                
+
                 if self.config.plot_results:
                     self._plot_training_results(training_results)
-            
+
             # Compliance tests if not skipped
             if not self.config.skip_compliance:
                 logger.info("Running compliance tests...")
@@ -632,16 +626,16 @@ class ValidationTest:
                 results['tests']['compliance'] = self._process_compliance_results(
                     compliance_results
                 )
-                
+
                 if self.config.plot_results:
                     self._plot_compliance_results(compliance_results)
-            
+
             # Validate and save results
             self.validate_results(results)
             self.save_results(results)
-            
+
             return results
-            
+
         except Exception as e:
             logger.error(f"Validation suite failed: {e}")
             raise
@@ -698,7 +692,7 @@ class ValidationTest:
         """
         if not self.config.plot_results:
             return
-            
+
         try:
             plt.figure(figsize=(10, 6))
             plt.plot(results.error_history)
@@ -708,7 +702,7 @@ class ValidationTest:
             plt.grid(True)
             plt.savefig(self.session_dir / 'training_convergence.png')
             plt.close()
-            
+
         except Exception as e:
             logger.error(f"Failed to plot training results: {e}")
 
@@ -721,7 +715,7 @@ class ValidationTest:
         """
         if not self.config.plot_results:
             return
-            
+
         try:
             # Eye diagram plot
             plt.figure(figsize=(10, 6))
@@ -733,7 +727,7 @@ class ValidationTest:
             plt.grid(True)
             plt.savefig(self.session_dir / 'eye_heights.png')
             plt.close()
-            
+
             # Jitter components plot
             plt.figure(figsize=(10, 6))
             jitter_data = results.jitter_results
@@ -744,7 +738,7 @@ class ValidationTest:
             plt.grid(True)
             plt.savefig(self.session_dir / 'jitter_components.png')
             plt.close()
-            
+
         except Exception as e:
             logger.error(f"Failed to plot compliance results: {e}")
 
@@ -756,21 +750,21 @@ class ValidationTest:
                 self.config.scope_address,
                 self.config.pattern_gen_address
             ]
-            
+
             # Clean up scope
             if hasattr(self, 'scope'):
                 try:
                     self.scope.cleanup()
                 except Exception as e:
                     logger.warning(f"Scope cleanup failed: {e}")
-                    
+
             # Clean up sequencer
             if hasattr(self, 'sequencer'):
                 try:
                     self.sequencer.cleanup(instruments)
                 except Exception as e:
                     logger.warning(f"Sequencer cleanup failed: {e}")
-                    
+
         except Exception as e:
             logger.error(f"Cleanup failed: {e}")
 
@@ -779,26 +773,26 @@ def main() -> None:
     try:
         # Parse and validate command line arguments
         config = parse_arguments()
-        
+
         # Run validation with progress updates
         validator = ValidationTest(config)
         print("\nStarting 224G Ethernet Validation...")
         print(f"Operating in {mode.value} mode")
-        
+
         results = validator.run_validation_suite()
-        
+
         # Print formatted summary
         print("\n=== Validation Test Summary ===")
         print(f"Test Date: {datetime.now():%Y-%m-%d %H:%M:%S}")
         print(f"\nResults Directory: {validator.session_dir}")
-        
+
         if not config.skip_training and 'link_training' in results['tests']:
             print("\nLink Training:")
             training = results['tests']['link_training']
             print(f"- Status: {training['status']}")
             print(f"- Training Time: {training['training_time']:.2f} s")
             print(f"- Converged: {training['converged']}")
-        
+
         if not config.skip_compliance and 'compliance' in results['tests']:
             print("\nCompliance Tests:")
             compliance = results['tests']['compliance']
@@ -806,12 +800,12 @@ def main() -> None:
             print(f"- RMS EVM: {compliance['evm']['rms_percent']:.2f}%")
             print(f"- Worst Eye Height: {compliance['eye_diagram']['worst_height']:.3f}")
             print(f"- Total Jitter: {compliance['jitter']['tj']:.3f} ps")
-        
+
         # Set exit code based on test status
-        if ('compliance' in results['tests'] and 
+        if ('compliance' in results['tests'] and
             results['tests']['compliance']['status'] != 'PASS'):
             sys.exit(1)
-        
+
     except ValidationError as e:
         logger.error(f"Validation Error: {e}")
         sys.exit(2)

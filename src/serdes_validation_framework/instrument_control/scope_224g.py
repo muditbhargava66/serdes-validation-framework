@@ -1,11 +1,13 @@
 # src/serdes_validation_framework/instrument_control/scope_224g.py
 
-from typing import Dict, List, Tuple, Optional, Union
+import logging
+from dataclasses import dataclass
+from typing import Dict, Optional, Union
+
 import numpy as np
 import numpy.typing as npt
-from dataclasses import dataclass
-import logging
-from .mock_controller import get_instrument_controller, InstrumentMode
+
+from .mock_controller import InstrumentMode, get_instrument_controller
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,14 +19,14 @@ class ScopeConfig:
     bandwidth: float      # In Hz
     timebase: float      # In seconds/division
     voltage_range: float # In volts
-    
+
     def __post_init__(self) -> None:
         """Validate configuration parameters"""
         assert isinstance(self.sampling_rate, float), "Sampling rate must be a float"
         assert isinstance(self.bandwidth, float), "Bandwidth must be a float"
         assert isinstance(self.timebase, float), "Timebase must be a float"
         assert isinstance(self.voltage_range, float), "Voltage range must be a float"
-        
+
         assert self.sampling_rate > 0, "Sampling rate must be positive"
         assert self.bandwidth > 0, "Bandwidth must be positive"
         assert self.timebase > 0, "Timebase must be positive"
@@ -40,7 +42,7 @@ class WaveformData:
 
 class HighBandwidthScope:
     """Controller for high-bandwidth oscilloscopes supporting 224G measurements"""
-    
+
     def __init__(
         self,
         resource_name: str,
@@ -61,15 +63,15 @@ class HighBandwidthScope:
             timebase=5e-12,       # 5 ps/div
             voltage_range=0.8     # 0.8V
         )
-        
+
         try:
             self.controller.connect_instrument(resource_name)
             logger.info(f"Connected to scope at {resource_name}")
-            
+
             # If we're in mock mode, configure mock responses for common scope queries
             if getattr(self.controller, 'mode', None) == InstrumentMode.MOCK:
                 self._configure_mock_responses()
-                
+
         except Exception as e:
             logger.error(f"Failed to connect to scope: {e}")
             raise
@@ -113,7 +115,7 @@ class HighBandwidthScope:
             config: Optional custom configuration, uses default if None
         """
         config = config or self.default_config
-        
+
         try:
             commands = [
                 f":ACQuire:SRATe {config.sampling_rate:.6e}",
@@ -124,12 +126,12 @@ class HighBandwidthScope:
                 ":TRIGger:MODE AUTO",
                 ":WAVeform:FORMat REAL"
             ]
-            
+
             for cmd in commands:
                 self.controller.send_command(self.resource_name, cmd)
-                
+
             logger.info(f"Scope configured for 224G with settings: {config}")
-            
+
         except Exception as e:
             logger.error(f"Failed to configure scope: {e}")
             raise
@@ -153,7 +155,7 @@ class HighBandwidthScope:
         assert isinstance(num_ui, int), "num_ui must be an integer"
         assert duration_seconds > 0, "Duration must be positive"
         assert num_ui > 0, "num_ui must be positive"
-        
+
         try:
             # Configure acquisition
             sample_points = int(self.default_config.sampling_rate * duration_seconds)
@@ -161,30 +163,30 @@ class HighBandwidthScope:
                 self.resource_name,
                 f":ACQuire:POINts {sample_points}"
             )
-            
+
             # Trigger acquisition
             self.controller.send_command(self.resource_name, ":RUN")
             self.controller.send_command(self.resource_name, ":SINGle")
-            
+
             # Get waveform data
             raw_data = self._get_waveform_data()
-            
+
             # Process data
             waveform = self._process_waveform(raw_data)
-            
+
             # Calculate eye parameters
             eye_params = self._measure_eye_parameters(waveform)
-            
+
             results = {
                 'waveform': waveform,
                 'eye_height': float(eye_params['height']),
                 'eye_width': float(eye_params['width']),
                 'jitter': float(eye_params['jitter'])
             }
-            
+
             logger.info("Eye diagram capture completed")
             return results
-            
+
         except Exception as e:
             logger.error(f"Failed to capture eye diagram: {e}")
             raise
@@ -202,7 +204,7 @@ class HighBandwidthScope:
                 self.resource_name,
                 ":MEASure:JITTer:ENABle"
             )
-            
+
             # Measure different jitter components
             measurements = {
                 'tj': self._query_float(":MEASure:JITTer:TJ?"),
@@ -210,10 +212,10 @@ class HighBandwidthScope:
                 'dj': self._query_float(":MEASure:JITTer:DJ?"),
                 'pj': self._query_float(":MEASure:JITTer:PJ?")
             }
-            
+
             logger.info(f"Jitter measurements completed: {measurements}")
             return measurements
-            
+
         except Exception as e:
             logger.error(f"Failed to measure jitter: {e}")
             raise
@@ -231,7 +233,7 @@ class HighBandwidthScope:
                 ":WAVeform:DATA?"
             )
             return np.array(raw_data.split(','), dtype=np.float64)
-            
+
         except Exception as e:
             logger.error(f"Failed to get waveform data: {e}")
             raise
@@ -251,22 +253,22 @@ class HighBandwidthScope:
         """
         assert np.issubdtype(raw_data.dtype, np.floating), \
             "Raw data must contain floating-point numbers"
-        
+
         try:
             # Get time base information
             x_increment = float(self._query_float(":WAVeform:XINCrement?"))
             x_origin = float(self._query_float(":WAVeform:XORigin?"))
-            
+
             # Create time array
             time_array = x_origin + np.arange(len(raw_data)) * x_increment
-            
+
             return WaveformData(
                 time=time_array,
                 voltage=raw_data,
                 sample_rate=float(self.default_config.sampling_rate),
                 time_scale=float(self.default_config.timebase)
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to process waveform: {e}")
             raise
@@ -290,16 +292,16 @@ class HighBandwidthScope:
                 self.resource_name,
                 ":MEASure:EYE:ENABle"
             )
-            
+
             # Get measurements
             measurements = {
                 'height': self._query_float(":MEASure:EYE:HEIGht?"),
                 'width': self._query_float(":MEASure:EYE:WIDTh?"),
                 'jitter': self._query_float(":MEASure:EYE:JITTer?")
             }
-            
+
             return measurements
-            
+
         except Exception as e:
             logger.error(f"Failed to measure eye parameters: {e}")
             raise
@@ -317,7 +319,7 @@ class HighBandwidthScope:
         try:
             response = self.controller.query_instrument(self.resource_name, query)
             return float(response.strip())
-            
+
         except Exception as e:
             logger.error(f"Failed to query float value: {e}")
             raise

@@ -7,32 +7,26 @@ This module provides constants, compliance specifications, training patterns,
 and enhanced equalization algorithms for 224G Ethernet validation.
 """
 
+from .compliance import ComplianceLimit, ComplianceSpecification, ComplianceTestConfig
 from .constants import (
-    PAM4Specs,
-    JitterSpecs,
-    EyeSpecs,
-    TrainingSpecs,
+    COMPLIANCE_PATTERNS,
     ETHERNET_224G_SPECS,
     TRAINING_PATTERNS,
-    COMPLIANCE_PATTERNS,
+    EyeSpecs,
+    JitterSpecs,
+    PAM4Specs,
+    TrainingSpecs,
+    calculate_ui_parameters,
     validate_pam4_levels,
-    calculate_ui_parameters
 )
-
-from .compliance import (
-    ComplianceTestConfig,
-    ComplianceLimit,
-    ComplianceSpecification
-)
-
 from .training import (
+    EnhancedEqualizer,
     # TrainingConfig,
     # TrainingStatus,
     # LinkTraining,
     # New enhanced equalization components
     EqualizerConfig,
     EqualizerState,
-    EnhancedEqualizer
 )
 
 __version__ = '1.1.0'  # Version bumped for enhanced equalization
@@ -48,12 +42,12 @@ __all__ = [
     'COMPLIANCE_PATTERNS',
     'validate_pam4_levels',
     'calculate_ui_parameters',
-    
+
     # Compliance
     'ComplianceTestConfig',
     'ComplianceLimit',
     'ComplianceSpecification',
-    
+
     # Training and Equalization
     'TrainingConfig',
     'TrainingStatus',
@@ -61,7 +55,7 @@ __all__ = [
     'EqualizerConfig',
     'EqualizerState',
     'EnhancedEqualizer',
-    
+
     # Version
     '__version__'
 ]

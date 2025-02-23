@@ -19,15 +19,15 @@ Example:
     'Mock Instrument'
 """
 
-import os
 import logging
-import warnings
+import os
 import time
-from typing import Dict, Optional, Any, Union, Callable, List
-from enum import Enum
-import numpy as np
-from pathlib import Path
+import warnings
 from dataclasses import dataclass
+from enum import Enum
+from typing import Callable, Dict, Union
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ def get_instrument_mode() -> InstrumentMode:
     """
     # Check environment variable
     mock_mode = os.environ.get('SVF_MOCK_MODE')
-    
+
     if mock_mode is not None:
         try:
             mock_mode_int = int(mock_mode)
@@ -84,8 +84,8 @@ def get_instrument_mode() -> InstrumentMode:
             else:
                 raise ValueError(f"SVF_MOCK_MODE must be 0 or 1, got {mock_mode}")
         except ValueError:
-            warnings.warn(f"Invalid SVF_MOCK_MODE value: {mock_mode}, using auto detection")
-    
+            warnings.warn(f"Invalid SVF_MOCK_MODE value: {mock_mode}, using auto detection", stacklevel=2)
+
     return InstrumentMode.AUTO
 
 def get_instrument_controller():
@@ -99,7 +99,7 @@ def get_instrument_controller():
         RuntimeError: If real mode forced but hardware not available
     """
     mode = get_instrument_mode()
-    
+
     if mode == InstrumentMode.MOCK:
         logger.info("Using mock controller (forced by environment)")
         return MockInstrumentController()
@@ -140,7 +140,7 @@ class MockInstrumentController:
     for testing without physical hardware. It generates realistic synthetic
     data and simulates common instrument behaviors.
     """
-    
+
     def __init__(self) -> None:
         """Initialize mock controller with simulated instruments"""
         self.mode = InstrumentMode.MOCK
@@ -167,7 +167,7 @@ class MockInstrumentController:
             '*OPC?': MockResponse('1', delay=0.1),
             ':WAVeform:DATA?': MockResponse(self._generate_mock_waveform, delay=1.0),
             'MEASure:VOLTage:DC?': MockResponse(
-                lambda: f"{np.random.normal(0, 0.1):.6f}", 
+                lambda: f"{np.random.normal(0, 0.1):.6f}",
                 delay=0.3
             ),
             ':MEASure:EYE:HEIGht?': MockResponse(
@@ -225,7 +225,7 @@ class MockInstrumentController:
         ]:
             if not 0 <= rate <= 1:
                 raise ValueError(f"{name} error rate must be between 0 and 1")
-        
+
         self.error_simulation = {
             'connection_error_rate': connection_error_rate,
             'command_error_rate': command_error_rate,
@@ -256,7 +256,7 @@ class MockInstrumentController:
             "Response must be string or callable"
         assert delay >= 0, "Delay must be non-negative"
         assert 0 <= error_rate <= 1, "Error rate must be between 0 and 1"
-        
+
         self.mock_responses[command] = MockResponse(response, delay, error_rate)
 
     def connect_instrument(self, resource_name: str) -> None:
@@ -271,15 +271,15 @@ class MockInstrumentController:
             ValueError: If resource name is invalid
         """
         assert isinstance(resource_name, str), "Resource name must be a string"
-        
+
         # Validate resource name format
         if not any(x in resource_name for x in ['GPIB', 'USB', 'TCPIP', 'VXI', 'ASRL']):
             raise ValueError(f"Invalid resource name format: {resource_name}")
-        
+
         # Simulate connection failures
         if np.random.random() < self.error_simulation['connection_error_rate']:
             raise MockConnectionError(f"Simulated connection failure to {resource_name}")
-        
+
         logger.info(f"Mock connecting to {resource_name}")
         self.connected_instruments[resource_name] = True
 
@@ -294,10 +294,10 @@ class MockInstrumentController:
             ValueError: If instrument not connected
         """
         assert isinstance(resource_name, str), "Resource name must be a string"
-        
+
         if resource_name not in self.connected_instruments:
             raise ValueError(f"Instrument {resource_name} not connected")
-            
+
         logger.info(f"Mock disconnecting from {resource_name}")
         del self.connected_instruments[resource_name]
 
@@ -315,14 +315,14 @@ class MockInstrumentController:
         """
         assert isinstance(resource_name, str), "Resource name must be a string"
         assert isinstance(command, str), "Command must be a string"
-        
+
         if resource_name not in self.connected_instruments:
             raise ValueError(f"Instrument {resource_name} not connected")
-            
+
         # Simulate command failures
         if np.random.random() < self.error_simulation['command_error_rate']:
             raise MockCommandError(f"Simulated command failure: {command}")
-            
+
         logger.debug(f"Mock command to {resource_name}: {command}")
 
     def query_instrument(self, resource_name: str, query: str) -> str:
@@ -342,79 +342,95 @@ class MockInstrumentController:
         """
         assert isinstance(resource_name, str), "Resource name must be a string"
         assert isinstance(query, str), "Query must be a string"
-        
+
         if resource_name not in self.connected_instruments:
             raise ValueError(f"Instrument {resource_name} not connected")
-            
+
         # Simulate query failures
         if np.random.random() < self.error_simulation['command_error_rate']:
             raise MockCommandError(f"Simulated query failure: {query}")
-            
+
         # Get mock response
         if query in self.mock_responses:
             mock_response = self.mock_responses[query]
-            
+
             # Simulate response delay
             if mock_response.delay > 0:
                 time.sleep(mock_response.delay)
-            
+
             # Handle response generation
             if callable(mock_response.value):
                 response = mock_response.value()
             else:
                 response = mock_response.value
-                
+
             # Simulate response error
             if np.random.random() < mock_response.error_rate:
                 response = "ERROR"
-                
+
             return response
-            
+
         logger.warning(f"No mock response defined for query: {query}")
         return "0.0"  # Default response
 
     def _generate_mock_waveform(self) -> str:
         """
-        Generate synthetic PAM4 waveform data with proper voltage levels
+        Generate synthetic PAM4 waveform data with guaranteed level separation
         
         Returns:
-            Comma-separated waveform data string with proper PAM4 levels
+            Comma-separated waveform data string
         """
         try:
-            # Generate PAM4 signal with realistic characteristics
+            # Fixed parameters
             num_points = 1000000
+            samples_per_symbol = 32  # Must be power of 2
+            num_symbols = num_points // samples_per_symbol
             
-            # Define proper PAM4 levels with good separation
-            levels = np.array([-0.6, -0.2, 0.2, 0.6])  # Four distinct levels
+            # Define PAM4 levels with very clear separation
+            levels = np.array([-0.9, -0.3, 0.3, 0.9])
             
-            # Generate random symbols with equal probability
-            symbols = np.random.choice(len(levels), num_points, p=[0.25, 0.25, 0.25, 0.25])
+            # Generate balanced symbol pattern
+            # Force all four levels to appear frequently
+            pattern = []
+            for _ in range(num_symbols // 4):
+                # Each chunk of 4 symbols contains all levels in random order
+                chunk = np.arange(4)
+                np.random.shuffle(chunk)
+                pattern.extend(chunk)
+            
+            # Convert to numpy array and extend if needed
+            symbols = np.array(pattern)
+            if len(symbols) < num_symbols:
+                symbols = np.pad(symbols, (0, num_symbols - len(symbols)), mode='wrap')
+                
+            # Convert symbols to voltage levels
             voltage_levels = levels[symbols]
             
-            # Add minimal noise to maintain level separation
-            noise_amplitude = 0.02  # Small noise
-            noise = np.random.normal(0, noise_amplitude, num_points)
+            # Repeat each symbol for the sample rate
+            waveform = np.repeat(voltage_levels, samples_per_symbol)
             
-            # Add timing jitter simulation
-            t = np.linspace(0, num_points/256e9, num_points)  # 256 GSa/s
-            jitter = 0.01 * np.sin(2 * np.pi * 1e9 * t)  # Reduced jitter
+            # Add very small noise to maintain level separation
+            noise_amplitude = 0.05  # Small noise
+            noise = np.random.normal(0, noise_amplitude, len(waveform))
             
-            # Combine signal components
-            waveform = voltage_levels + noise + jitter
+            # Apply raised cosine filter for smooth transitions
+            beta = 0.35  # Roll-off factor
+            t = np.linspace(-samples_per_symbol/2, samples_per_symbol/2, samples_per_symbol)
+            h = np.sinc(t/samples_per_symbol) * np.cos(np.pi * beta * t/samples_per_symbol)
+            h = h / np.sum(h)  # Normalize
             
-            # Add transition effects and ensure level separation
-            for i in range(1, num_points):
-                if symbols[i] != symbols[i-1]:
-                    # Add small transition effects
-                    waveform[i] += 0.05 * np.random.randn()
+            # Filter the signal
+            filtered = np.convolve(waveform + noise, h, mode='same')
             
-            # Scale and center the waveform
-            waveform = waveform * 0.8  # Scale to typical voltage range
+            # Ensure correct amplitude after filtering
+            filtered = filtered / np.max(np.abs(filtered)) * 0.9
             
-            return ','.join(map(lambda x: f"{x:.6f}", waveform))
+            # Format with consistent precision
+            formatted = ','.join([f"{x:.8f}" for x in filtered])
+            return formatted
             
         except Exception as e:
-            logger.error(f"Failed to generate mock waveform: {e}")
+            logger.error(f"Failed to generate PAM4 waveform: {e}")
             return ','.join(['0.0'] * 1000)  # Fallback data
 
     def __repr__(self) -> str:
@@ -432,30 +448,30 @@ class MockInstrumentController:
 # Example usage and testing
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    
+
     # Test mock controller
     try:
         controller = MockInstrumentController()
         print(f"\nController: {controller}")
-        
+
         # Test basic operations
         controller.connect_instrument('GPIB::1::INSTR')
         response = controller.query_instrument('GPIB::1::INSTR', '*IDN?')
         print(f"Mock ID response: {response}")
-        
+
         # Test waveform generation
         waveform = controller.query_instrument('GPIB::1::INSTR', ':WAVeform:DATA?')
         waveform_data = list(map(float, waveform.split(',')))
         print(f"\nGenerated waveform points: {len(waveform_data)}")
         print(f"Waveform range: {min(waveform_data):.2f} to {max(waveform_data):.2f}")
-        
+
         # Test measurement queries
         eye_height = controller.query_instrument('GPIB::1::INSTR', ':MEASure:EYE:HEIGht?')
         eye_width = controller.query_instrument('GPIB::1::INSTR', ':MEASure:EYE:WIDTh?')
-        print(f"\nEye measurements:")
+        print("\nEye measurements:")
         print(f"Height: {eye_height}")
         print(f"Width: {eye_width}")
-        
+
         # Test error simulation
         print("\nTesting error simulation:")
         controller.set_error_rates(
@@ -463,7 +479,7 @@ if __name__ == "__main__":
             command_error_rate=0.5,
             data_error_rate=0.5
         )
-        
+
         # Try multiple operations to demonstrate error handling
         for i in range(5):
             try:
@@ -480,7 +496,7 @@ if __name__ == "__main__":
                 print(f"  Command error: {e}")
             except Exception as e:
                 print(f"  Unexpected error: {e}")
-        
+
         # Test custom response addition
         print("\nTesting custom responses:")
         controller.add_mock_response(
@@ -489,18 +505,18 @@ if __name__ == "__main__":
             delay=0.1,
             error_rate=0.2
         )
-        
+
         for i in range(3):
             try:
                 response = controller.query_instrument('GPIB::1::INSTR', 'TEST:CUSTOM?')
                 print(f"Custom response {i+1}: {response}")
             except Exception as e:
                 print(f"Custom response error: {e}")
-        
+
         # Test disconnection and cleanup
         controller.disconnect_instrument('GPIB::1::INSTR')
         print("\nTest complete")
-        
+
     except Exception as e:
         logger.error(f"Test failed: {e}")
         raise
@@ -525,30 +541,30 @@ def run_mock_controller_tests():
         logger.info("\nTest 1: Basic connectivity")
         controller = MockInstrumentController()
         controller.set_error_rates(0, 0, 0)  # Disable errors for basic tests
-        
+
         assert controller.get_mode() == 'mock', "Wrong controller mode"
         controller.connect_instrument('GPIB::1::INSTR')
         assert 'GPIB::1::INSTR' in controller.connected_instruments, \
             "Instrument not connected"
-            
+
         # Test basic queries
         response = controller.query_instrument('GPIB::1::INSTR', '*IDN?')
         print(f"ID Query response: {response}")
         assert isinstance(response, str) and len(response) > 0, \
             "Invalid ID response"
-        
+
         # Test 2: Waveform generation
         logger.info("\nTest 2: Waveform generation")
         waveform = controller.query_instrument('GPIB::1::INSTR', ':WAVeform:DATA?')
         waveform_data = list(map(float, waveform.split(',')))
         print(f"Generated {len(waveform_data)} waveform points")
         assert len(waveform_data) > 0, "No waveform data generated"
-        
+
         data_range = (min(waveform_data), max(waveform_data))
         print(f"Data range: {data_range[0]:.2f} to {data_range[1]:.2f}")
         assert -5.0 <= data_range[0] and data_range[1] <= 5.0, \
             "Waveform data out of range"
-        
+
         # Test 3: Custom responses
         logger.info("\nTest 3: Custom responses")
         test_value = "CustomResponse123"
@@ -556,27 +572,27 @@ def run_mock_controller_tests():
         response = controller.query_instrument('GPIB::1::INSTR', 'TEST:CUSTOM?')
         print(f"Custom response test: {response}")
         assert response == test_value, "Custom response failed"
-        
+
         # Test 4: Error simulation for connection
         logger.info("\nTest 4: Connection error simulation")
         controller.set_error_rates(connection_error_rate=1.0, command_error_rate=0)
-        
+
         try:
             controller.connect_instrument('GPIB::2::INSTR')
-            assert False, "Connection should have failed"
+            raise AssertionError("Connection should have failed")
         except MockConnectionError as e:
             print(f"Expected connection error caught: {e}")
-        
+
         # Test 5: Error simulation for commands
         logger.info("\nTest 5: Command error simulation")
         controller.set_error_rates(connection_error_rate=0, command_error_rate=1.0)
-        
+
         try:
             controller.query_instrument('GPIB::1::INSTR', '*IDN?')
-            assert False, "Command should have failed"
+            raise AssertionError("Command should have failed")
         except MockCommandError as e:
             print(f"Expected command error caught: {e}")
-        
+
         # Test 6: Dynamic response function
         logger.info("\nTest 6: Dynamic response function")
         controller.set_error_rates(0, 0, 0)  # Reset error rates
@@ -585,24 +601,24 @@ def run_mock_controller_tests():
             lambda: f"{np.random.random():.3f}",
             error_rate=0
         )
-        
+
         responses = set()
         for _ in range(3):
             response = controller.query_instrument('GPIB::1::INSTR', 'TEST:RANDOM?')
             responses.add(response)
             print(f"Dynamic response: {response}")
-        
+
         assert len(responses) > 1, "Dynamic responses not varying"
-        
+
         # Test 7: Cleanup
         logger.info("\nTest 7: Cleanup")
         controller.disconnect_instrument('GPIB::1::INSTR')
         assert len(controller.connected_instruments) == 0, \
             "Instrument not properly disconnected"
-        
+
         logger.info("All tests completed successfully!")
         return True
-        
+
     except Exception as e:
         logger.error(f"Mock controller tests failed: {e}")
         raise
@@ -612,27 +628,27 @@ def run_interactive_demo():
     try:
         logger.info("\nStarting mock controller interactive demo...")
         controller = MockInstrumentController()
-        
+
         # Basic operations demo
         controller.connect_instrument('GPIB::1::INSTR')
         print(f"\nController: {controller}")
-        
+
         response = controller.query_instrument('GPIB::1::INSTR', '*IDN?')
         print(f"Mock ID response: {response}")
-        
+
         # Waveform demo
         waveform = controller.query_instrument('GPIB::1::INSTR', ':WAVeform:DATA?')
         waveform_data = list(map(float, waveform.split(',')))
         print(f"\nGenerated waveform points: {len(waveform_data)}")
         print(f"Waveform range: {min(waveform_data):.2f} to {max(waveform_data):.2f}")
-        
+
         # Measurement demo
         eye_height = controller.query_instrument('GPIB::1::INSTR', ':MEASure:EYE:HEIGht?')
         eye_width = controller.query_instrument('GPIB::1::INSTR', ':MEASure:EYE:WIDTh?')
-        print(f"\nEye measurements:")
+        print("\nEye measurements:")
         print(f"Height: {eye_height}")
         print(f"Width: {eye_width}")
-        
+
         # Error simulation demo with lower rates
         print("\nDemonstrating error simulation (with 20% error rates):")
         controller.set_error_rates(
@@ -640,7 +656,7 @@ def run_interactive_demo():
             command_error_rate=0.2,
             data_error_rate=0.2
         )
-        
+
         for i in range(5):
             try:
                 print(f"\nTest {i+1}:")
@@ -656,7 +672,7 @@ def run_interactive_demo():
                 print(f"  Command error: {e}")
             except Exception as e:
                 print(f"  Unexpected error: {e}")
-        
+
         # Custom response demo
         print("\nDemonstrating custom responses:")
         controller.set_error_rates(0, 0, 0)  # Reset error rates
@@ -665,15 +681,15 @@ def run_interactive_demo():
             lambda: f"{np.random.random():.3f}",
             error_rate=0
         )
-        
+
         for i in range(3):
             response = controller.query_instrument('GPIB::1::INSTR', 'TEST:CUSTOM?')
             print(f"Custom response {i+1}: {response}")
-        
+
         # Cleanup
         controller.disconnect_instrument('GPIB::1::INSTR')
         print("\nDemo complete")
-        
+
     except Exception as e:
         logger.error(f"Demo failed: {e}")
         raise
@@ -681,14 +697,14 @@ def run_interactive_demo():
 # Run tests and demo if module is run directly
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    
+
     try:
         # Run automated tests first
         run_mock_controller_tests()
-        
+
         # Then run interactive demo
         run_interactive_demo()
-        
+
     except Exception as e:
         print(f"Error: {e}")
         raise

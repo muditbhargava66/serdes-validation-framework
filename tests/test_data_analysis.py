@@ -1,11 +1,13 @@
+import os
+import sys
 import unittest
+
 import pandas as pd
 
-import sys
-import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.serdes_validation_framework.data_analysis.analyzer import DataAnalyzer
+
 
 class TestDataAnalyzer(unittest.TestCase):
 

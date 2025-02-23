@@ -1,11 +1,12 @@
-import unittest
-from unittest.mock import patch, MagicMock
-
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.serdes_validation_framework.instrument_control.controller import InstrumentController
+
 
 class TestInstrumentController(unittest.TestCase):
 

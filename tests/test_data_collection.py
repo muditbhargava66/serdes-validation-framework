@@ -1,16 +1,15 @@
 # tests/test_data_collection.py
 
-import unittest
-from unittest.mock import patch, MagicMock
 import logging
-from typing import Tuple, Any
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.serdes_validation_framework.data_collection.data_collector import DataCollector
-from src.serdes_validation_framework.instrument_control.mock_controller import MockInstrumentController
+
 
 class MockController:
     """Mock controller for testing"""
@@ -31,7 +30,7 @@ class MockController:
         """
         if not resource_name:
             raise ValueError("Resource name cannot be empty")
-            
+
         valid_prefixes = ('GPIB', 'USB', 'TCPIP', 'VXI', 'ASRL')
         if not any(resource_name.startswith(prefix) for prefix in valid_prefixes):
             raise ValueError(
@@ -51,7 +50,7 @@ class MockController:
         """
         self._validate_resource_name(resource_name)
         self.connected_instruments[resource_name] = True
-        
+
     def disconnect_instrument(self, resource_name: str) -> None:
         """
         Mock instrument disconnection
@@ -65,7 +64,7 @@ class MockController:
         if resource_name not in self.connected_instruments:
             raise ValueError(f"Instrument {resource_name} not connected")
         del self.connected_instruments[resource_name]
-            
+
     def query_instrument(self, resource_name: str, query: str) -> str:
         """
         Mock instrument query
@@ -91,17 +90,17 @@ class TestDataCollector(unittest.TestCase):
         """Set up test fixtures"""
         # Create mock controller
         self.mock_controller = MockController()
-        
+
         # Create test responses
         self.mock_controller.query_responses = {
             '*IDN?': 'Test Instrument',
             'TEST:QUERY?': 'Test Response',
             'MEASure:VOLTage:DC?': '1.234'
         }
-        
+
         # Initialize data collector with mock controller
         self.data_collector = DataCollector(controller=self.mock_controller)
-        
+
         # Test resource name
         self.test_resource = 'GPIB::1::INSTR'
 
@@ -114,7 +113,7 @@ class TestDataCollector(unittest.TestCase):
         """Test instrument connection"""
         # Connect instrument
         self.data_collector.connect_instrument(self.test_resource)
-        
+
         # Verify connection
         self.assertIn(self.test_resource, self.data_collector.instruments)
         self.assertTrue(
@@ -125,11 +124,11 @@ class TestDataCollector(unittest.TestCase):
         """Test data collection"""
         # Connect and collect data
         self.data_collector.connect_instrument(self.test_resource)
-        
+
         # Test basic query
         response = self.data_collector.collect_data(self.test_resource, '*IDN?')
         self.assertEqual(response, 'Test Instrument')
-        
+
         # Test measurement query
         response = self.data_collector.collect_data(
             self.test_resource,
@@ -142,7 +141,7 @@ class TestDataCollector(unittest.TestCase):
         # Connect then disconnect
         self.data_collector.connect_instrument(self.test_resource)
         self.data_collector.disconnect_instrument(self.test_resource)
-        
+
         # Verify disconnection
         self.assertNotIn(self.test_resource, self.data_collector.instruments)
         self.assertNotIn(
@@ -168,51 +167,51 @@ class TestDataCollector(unittest.TestCase):
         with self.assertRaises(ValueError) as ctx:
             self.data_collector.connect_instrument("")
         self.assertIn("cannot be empty", str(ctx.exception))
-        
+
         # Test invalid resource name format
         with self.assertRaises(ValueError) as ctx:
             self.data_collector.connect_instrument("INVALID::RESOURCE")
         self.assertIn("Invalid resource name format", str(ctx.exception))
-        
+
         # Test duplicate connection (should work, but log a warning)
         self.data_collector.connect_instrument(self.test_resource)
         self.data_collector.connect_instrument(self.test_resource)  # Should work
         self.assertIn(self.test_resource, self.data_collector.instruments)
-        
+
         # Test disconnect non-existent instrument
         with self.assertRaises(ValueError) as ctx:
             self.data_collector.disconnect_instrument("GPIB::99::INSTR")
         self.assertIn("not connected", str(ctx.exception))
-        
+
         # Test query to non-existent instrument
         with self.assertRaises(ValueError) as ctx:
             self.data_collector.collect_data("GPIB::99::INSTR", "*IDN?")
         self.assertIn("not connected", str(ctx.exception))
-        
+
         # Test cleanup
         self.data_collector.disconnect_instrument(self.test_resource)
 
     def test_multiple_instruments(self) -> None:
         """Test handling multiple instruments"""
         resources = ['GPIB::1::INSTR', 'GPIB::2::INSTR', 'GPIB::3::INSTR']
-        
+
         # Connect multiple instruments
         for resource in resources:
             self.data_collector.connect_instrument(resource)
-            
+
         # Verify all connections
         for resource in resources:
             self.assertIn(resource, self.data_collector.instruments)
-            
+
         # Collect data from each
         for resource in resources:
             response = self.data_collector.collect_data(resource, '*IDN?')
             self.assertEqual(response, 'Test Instrument')
-            
+
         # Disconnect all
         for resource in resources:
             self.data_collector.disconnect_instrument(resource)
-            
+
         # Verify all disconnected
         self.assertEqual(len(self.data_collector.instruments), 0)
 

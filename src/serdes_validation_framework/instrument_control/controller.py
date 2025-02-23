@@ -1,7 +1,8 @@
 # src/serdes_validation_framework/instrument_control/controller.py
 
-import pyvisa
 import logging
+
+import pyvisa
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

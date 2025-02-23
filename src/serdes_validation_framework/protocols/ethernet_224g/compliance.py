@@ -1,11 +1,13 @@
 # src/serdes_validation_framework/protocols/ethernet_224g/compliance.py
 
-from typing import Dict, List, Tuple, Optional, Union
+import logging
+from dataclasses import dataclass
+from typing import Dict, Tuple
+
 import numpy as np
 import numpy.typing as npt
-from dataclasses import dataclass
-import logging
-from .constants import ETHERNET_224G_SPECS, COMPLIANCE_PATTERNS
+
+from .constants import COMPLIANCE_PATTERNS, ETHERNET_224G_SPECS
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,14 +19,14 @@ class ComplianceTestConfig:
     sample_rate: float
     record_length: float
     voltage_range: float
-    
+
     def __post_init__(self) -> None:
         """Validate configuration parameters"""
         assert isinstance(self.test_pattern, str), "Test pattern must be a string"
         assert isinstance(self.sample_rate, float), "Sample rate must be a float"
         assert isinstance(self.record_length, float), "Record length must be a float"
         assert isinstance(self.voltage_range, float), "Voltage range must be a float"
-        
+
         assert self.sample_rate > 0, "Sample rate must be positive"
         assert self.record_length > 0, "Record length must be positive"
         assert self.voltage_range > 0, "Voltage range must be positive"
@@ -35,7 +37,7 @@ class ComplianceLimit:
     nominal: float
     minimum: float
     maximum: float
-    
+
     def __post_init__(self) -> None:
         """Validate limit values"""
         for value in [self.nominal, self.minimum, self.maximum]:
@@ -44,7 +46,7 @@ class ComplianceLimit:
 
 class ComplianceSpecification:
     """224G Ethernet compliance specification checker"""
-    
+
     def __init__(self) -> None:
         """Initialize compliance specifications"""
         self.specs = ETHERNET_224G_SPECS
@@ -94,23 +96,23 @@ class ComplianceSpecification:
         assert np.issubdtype(measured_levels.dtype, np.floating), \
             "Levels must be floating-point numbers"
         assert len(measured_levels) == 4, "Must have exactly 4 PAM4 levels"
-        
+
         try:
             # Calculate level separations
             level_gaps = np.diff(sorted(measured_levels))
             min_separation = float(np.min(level_gaps))
-            
+
             # Check against limits
             limit = self.limits['level_separation']
             passed = limit.minimum <= min_separation <= limit.maximum
-            
+
             measurements = {
                 'min_separation': min_separation,
                 'uniformity': float(np.std(level_gaps) / np.mean(level_gaps))
             }
-            
+
             return passed, measurements
-            
+
         except Exception as e:
             logger.error(f"Failed to check PAM4 levels: {e}")
             raise
@@ -134,23 +136,23 @@ class ComplianceSpecification:
         assert isinstance(eye_width, float), "Eye width must be a float"
         assert eye_height >= 0, "Eye height must be non-negative"
         assert eye_width >= 0, "Eye width must be non-negative"
-        
+
         try:
             height_limit = self.limits['eye_height']
             width_limit = self.limits['eye_width']
-            
+
             height_passed = height_limit.minimum <= eye_height <= height_limit.maximum
             width_passed = width_limit.minimum <= eye_width <= width_limit.maximum
-            
+
             measurements = {
                 'eye_height': eye_height,
                 'eye_width': eye_width,
                 'height_margin': eye_height - height_limit.minimum,
                 'width_margin': eye_width - width_limit.minimum
             }
-            
+
             return (height_passed and width_passed), measurements
-            
+
         except Exception as e:
             logger.error(f"Failed to check eye diagram: {e}")
             raise
@@ -174,19 +176,19 @@ class ComplianceSpecification:
         assert isinstance(peak_evm, float), "Peak EVM must be a float"
         assert rms_evm >= 0, "RMS EVM must be non-negative"
         assert peak_evm >= 0, "Peak EVM must be non-negative"
-        
+
         try:
             evm_limit = self.limits['rms_evm']
             passed = rms_evm <= evm_limit.maximum
-            
+
             measurements = {
                 'rms_evm': rms_evm,
                 'peak_evm': peak_evm,
                 'margin': evm_limit.maximum - rms_evm
             }
-            
+
             return passed, measurements
-            
+
         except Exception as e:
             logger.error(f"Failed to check EVM: {e}")
             raise
@@ -206,7 +208,7 @@ class ComplianceSpecification:
         """
         assert isinstance(test_type, str), "Test type must be a string"
         assert test_type in self.test_patterns, f"Unknown test type: {test_type}"
-        
+
         try:
             configs = {
                 'jitter': ComplianceTestConfig(
@@ -228,9 +230,9 @@ class ComplianceSpecification:
                     voltage_range=1.0
                 )
             }
-            
+
             return configs[test_type]
-            
+
         except Exception as e:
             logger.error(f"Failed to get test config: {e}")
             raise
