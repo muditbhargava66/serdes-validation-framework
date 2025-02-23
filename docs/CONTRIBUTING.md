@@ -32,7 +32,7 @@ Thank you for considering contributing to the SerDes Validation Framework! We we
 
 ## Code of Conduct
 
-Please follow our [Code of Conduct](CODE_OF_CONDUCT.md) when contributing.
+Please follow our [Code of Conduct] when contributing.
 
 ## Reporting Issues
 
@@ -45,5 +45,3 @@ If you encounter any issues or bugs, please open an issue on GitHub and provide 
 - Ensure that your code is well-documented with comments and docstrings.
 
 Thank you for your contributions!
-
----

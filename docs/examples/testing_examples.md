@@ -433,5 +433,3 @@ if __name__ == '__main__':
 - [Mock Controller Examples](mock_controller_examples.md)
 - [Mock Testing Tutorial](../tutorials/mock_testing.md)
 - [Testing Guide](../guides/testing.md)
-
----

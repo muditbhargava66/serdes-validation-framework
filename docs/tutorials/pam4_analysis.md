@@ -511,6 +511,7 @@ def validate_measurements(
         
     except Exception as e:
         raise ValueError(f"Measurement validation failed: {e}")
+```
 
 ### 4. Error Handling
 
@@ -734,5 +735,3 @@ def plot_analysis_results(
 - PAM4 Modulation Theory
 - Signal Processing Handbook
 - IEEE 802.3 Specifications
-
----

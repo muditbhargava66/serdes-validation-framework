@@ -388,5 +388,3 @@ def configure_mock_controller(controller: Any) -> None:
 - [Mock Controller API](../api/mock_controller.md)
 - [Instrument Control API](../api/instrument_control.md)
 - [224G Validation Tutorial](224g_validation.md)
-
----

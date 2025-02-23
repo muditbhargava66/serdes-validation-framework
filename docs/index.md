@@ -32,7 +32,7 @@ CONTRIBUTING
 
 api/index
 api/mock_controller
-api/instrument_control 
+api/instrument_control
 api/eth_224g
 api/pam4_analysis
 ```
@@ -54,6 +54,7 @@ tutorials/pam4_analysis
 guides/instrument_setup
 guides/troubleshooting
 guides/environment_vars
+guides/testing
 ```
 
 ```{toctree}

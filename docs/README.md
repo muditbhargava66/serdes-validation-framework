@@ -36,6 +36,7 @@ docs/
 │   └── pam4_analysis.md      # PAM4 analysis guide
 ├── guides/                    # User guides
 │   ├── instrument_setup.md   # Hardware setup guide
+│   ├── testing.md   # Testing guide
 │   ├── troubleshooting.md    # Troubleshooting guide
 │   └── environment_vars.md   # Environment config guide
 ├── examples/                  # Code examples
@@ -61,5 +62,3 @@ docs/
 3. Link it from relevant pages
 4. Build and test locally
 5. Submit a pull request
-
----

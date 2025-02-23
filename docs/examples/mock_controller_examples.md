@@ -434,5 +434,3 @@ def mock_instrument(
 - [Mock Testing Tutorial](../tutorials/mock_testing.md)
 - [Mock Controller API](../api/mock_controller.md)
 - [Testing Examples](testing_examples.md)
-
----
