@@ -1,13 +1,13 @@
-pyvisa
-pyvisa-py
-pandas
-matplotlib
-seaborn
-gpib-ctypes
-mock
-tox
-pytest
-zeroconf
-numpy
-scipy>=1.13.1
-scikit-learn
+# Core dependencies only (managed via pyproject.toml)
+numpy>=1.26.0
+scipy>=1.13.1,<2.0.0
+pandas>=2.2.3
+matplotlib>=3.9.0
+seaborn>=0.13.0
+scikit-learn>=1.4.0
+pyvisa>=1.13.0
+pyvisa-py>=0.5.1
+pyusb>=1.2.1
+python-usbtmc>=0.8
+gpib-ctypes @ git+https://github.com/tivek/gpib_ctypes
+zeroconf>=0.131.0

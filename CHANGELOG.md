@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced error reporting
   - Progress tracking
   - Cleanup validation
+- ReadTheDocs Integration [2024-20-23]
+  - Set up documentation hosting on ReadTheDocs
+  - Configured automatic documentation builds
+  - Improved navigation and search capabilities
+  - Added links to hosted documentation
 
 ### Changed
 - Updated TestSequencer implementation
@@ -88,7 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Signal normalization accuracy
 - Mock instrument response handling
 
-## [1.0.0] - 2024-02-15
+## [1.0.0] - 2024-06-26
 
 ### Added
 - Initial release of SerDes Validation Framework
@@ -115,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A (initial release)
 
 [1.2.0]: https://github.com/muditbhargava66/serdes-validation-framework/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/muditbhargava66/serdes-validation-framework/compare/v1.0.0...v1.1.0
+[1.1.0]: N/A
 [1.0.0]: https://github.com/muditbhargava66/serdes-validation-framework/releases/tag/v1.0.0
 
 ## Release History Quick Reference
@@ -124,7 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 |---------|--------------|---------------|
 | 1.2.0   | 2025-02-22   | Added Mock Controller Support, Enhanced Testing Framework |
 | 1.1.0   | 2025-02-21   | Added 224G Ethernet support, Enhanced type checking |
-| 1.0.0   | ----------   | Initial release |
+| 1.0.0   | 2024-06-26   | Initial release |
 
 ## Version Compatibility Matrix
 

@@ -1,3 +1,26 @@
+"""
+Test Sequence Example Script
+
+This script demonstrates the usage of the TestSequencer class for automated
+instrument control and data collection. It showcases:
+- Mock instrument setup for testing
+- GPIB communication simulation
+- Basic test sequence execution
+- Data collection and analysis workflow
+
+The example uses PyVISA's mock functionality to simulate instrument
+communication without requiring physical hardware.
+
+Dependencies:
+    - logging
+    - unittest.mock
+    - pyvisa
+    - src.serdes_validation_framework
+
+Author: Mudit Bhargava
+Date: February 2025
+"""
+
 import logging
 import os
 import sys
