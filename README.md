@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml)
 [![Lint](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml)
+[![CodeQL](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/github-code-scanning/codeql)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11%20|%203.12-blue.svg)](https://www.python.org/)
 [![Code Coverage](https://img.shields.io/badge/coverage-98%25-green)](https://github.com/muditbhargava66/serdes-validation-framework/actions)
@@ -17,90 +18,224 @@
 
 </div>
 
-## Features
+## ✨ Key Features
 
-- **Automated Data Collection:** Gather data from lab instruments seamlessly.
-- **Data Analysis and Visualization:** Analyze and visualize collected data with ease.
-- **Instrument Control via GPIB:** Control lab instruments using the General Purpose Interface Bus (GPIB).
-- **Customizable Test Sequences:** Define and run customizable test sequences.
+### Core Capabilities
+- 🔄 **Automated Data Collection:** Seamless data gathering from lab instruments
+- 📊 **Advanced Analysis:** Comprehensive signal processing and visualization
+- 🎛️ **Universal Instrument Control:** GPIB/USB interface for multi-vendor support
+- 📋 **Flexible Test Sequences:** Customizable, reusable test automation
 
-## Installation
+### New Features in v1.2.0
+- 🔍 **Mock Testing Support:** Development and testing without physical hardware
+- 📡 **224G Ethernet Support:** Complete validation suite for 224G interfaces
+- 📊 **PAM4 Analysis:** Advanced PAM4 signal processing capabilities
+- 🔬 **Enhanced Scope Control:** High-bandwidth oscilloscope integration
+
+### 🎮 Intelligent Hardware/Mock Adaptation
+
+```python
+from serdes_validation_framework import get_instrument_controller
+
+# Auto-detects available hardware
+controller = get_instrument_controller()
+
+# For development/testing without hardware:
+os.environ['SVF_MOCK_MODE'] = '1'
+
+# For specific hardware testing:
+os.environ['SVF_MOCK_MODE'] = '0'
+
+# Example usage (works in both modes):
+controller.connect_instrument('GPIB::1::INSTR')
+response = controller.query_instrument('GPIB::1::INSTR', '*IDN?')
+print(f"Operating in {controller.get_mode()} mode")  # 'mock' or 'real'
+```
+
+### 📡 224G Ethernet Validation
+
+```python
+from serdes_validation_framework.protocols.ethernet_224g import (
+    Ethernet224GTestSequence,
+    ComplianceSpecification
+)
+
+# Initialize test sequence
+sequence = Ethernet224GTestSequence()
+
+# Run link training
+training_results = sequence.run_link_training_test(
+    scope_resource="GPIB0::7::INSTR",
+    pattern_gen_resource="GPIB0::10::INSTR"
+)
+
+# Run compliance tests
+compliance_results = sequence.run_compliance_test_suite(
+    scope_resource="GPIB0::7::INSTR",
+    pattern_gen_resource="GPIB0::10::INSTR"
+)
+
+print(f"Training status: {training_results.convergence_status}")
+print(f"Compliance status: {compliance_results.test_status}")
+```
+
+### 📊 PAM4 Signal Analysis
+
+```python
+from serdes_validation_framework.data_analysis import PAM4Analyzer
+
+# Initialize analyzer
+analyzer = PAM4Analyzer({
+    'time': time_data,
+    'voltage': voltage_data
+})
+
+# Analyze signal
+levels = analyzer.analyze_level_separation()
+evm = analyzer.calculate_evm()
+eye = analyzer.analyze_eye_diagram()
+
+print(f"RMS EVM: {evm.rms_evm_percent:.2f}%")
+print(f"Worst Eye Height: {eye.worst_eye_height:.3f}")
+```
+
+### 🔄 Automatic Mode Selection
+
+The framework intelligently adapts between hardware and mock modes:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| 🔍 **Auto** | Automatically detects available hardware | Default behavior |
+| 🎮 **Mock** | Simulates hardware responses | Development & testing |
+| 🔧 **Real** | Uses physical instruments | Production validation |
+
+Configure via environment:
+```bash
+# Development without hardware
+export SVF_MOCK_MODE=1
+
+# Force hardware mode
+export SVF_MOCK_MODE=0
+
+# Auto-detect (default)
+unset SVF_MOCK_MODE
+```
+
+### 📈 Real vs Mock Data Comparison
+
+```python
+# Mock mode provides realistic data simulation:
+def generate_pam4_waveform():
+    """Generate synthetic PAM4 data"""
+    levels = np.array([-3.0, -1.0, 1.0, 3.0])
+    symbols = np.random.choice(levels, size=num_points)
+    noise = np.random.normal(0, 0.05, num_points)
+    return symbols + noise
+
+# Auto-switching between real/mock:
+def capture_waveform(scope):
+    """Capture waveform data"""
+    if scope.controller.get_mode() == 'mock':
+        return generate_pam4_waveform()
+    else:
+        return scope.query_waveform()
+```
+
+## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.9+ (recommended 3.10)
 - Git
-- VISA Library (for instrument control)
+- VISA Library (optional, for hardware control)
 
-### Steps
+### Installation
 
-1. **Clone the repository:**
+```bash
+# Clone repository
+git clone https://github.com/muditbhargava66/serdes-validation-framework.git
+cd serdes-validation-framework
 
-    ```bash
-    git clone https://github.com/muditbhargava66/serdes-validation-framework.git
-    ```
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-2. **Navigate to the project directory:**
+# Install dependencies
+pip install -r requirements.txt
+```
 
-    ```bash
-    cd serdes-validation-framework
-    ```
+### Basic Usage
 
-3. **Create and activate a virtual environment (optional but recommended):**
+```python
+from serdes_validation_framework import get_instrument_controller
 
-    ```bash
-    python -m venv venv
-    source venv/bin/activate   # On Windows, use `venv\Scripts\activate`
-    ```
+# Initialize controller (auto-detects mock/real mode)
+controller = get_instrument_controller()
 
-4. **Install the dependencies:**
+# Connect to instrument
+controller.connect_instrument('GPIB::1::INSTR')
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Basic operations
+controller.send_command('GPIB::1::INSTR', '*RST')
+response = controller.query_instrument('GPIB::1::INSTR', '*IDN?')
+```
 
-## Usage
+## 🛠️ Development
 
-Refer to the [USAGE.md](docs/USAGE.md) for detailed usage instructions.
+### Setup Development Environment
+```bash
+# Install dev dependencies
+pip install -r requirements-dev.txt
 
-### Quick Start
+# Run tests
+python -m unittest discover -s tests
 
-1. **Run Data Collection Example:**
+# Run linter
+ruff check src tests
 
-    ```bash
-    python examples/data_collection_example.py
-    ```
+# Test all Python versions
+tox
+```
 
-2. **Run Data Analysis Example:**
+### Mock Testing
+Enable mock mode for development without hardware:
+```bash
+# Enable mock mode
+export SVF_MOCK_MODE=1
 
-    ```bash
-    python examples/data_analysis_example.py
-    ```
+# Run examples
+python examples/mock_testing_example.py
+```
 
-3. **Run Instrument Control Example:**
+## 📊 Feature Comparison
 
-    ```bash
-    python examples/instrument_control_example.py
-    ```
+| Feature | Mock Mode | Hardware Mode |
+|---------|-----------|---------------|
+| 🚀 Setup Speed | Instant | Requires calibration |
+| 📊 Data Quality | Simulated | Real measurements |
+| 🔄 Automation | Full support | Full support |
+| 📈 Analysis | All features | All features |
+| 🕒 Execution Time | Fast | Hardware-dependent |
+| 🔧 Requirements | None | VISA, hardware |
 
-4. **Run Test Sequence Example:**
+## 📚 Documentation
 
-    ```bash
-    python examples/test_sequence_example.py
-    ```
+### Getting Started
+- [📖 Installation Guide](docs/INSTALL.md)
+- [🎯 Usage Guide](docs/USAGE.md)
+- [🔰 Quick Start Tutorial](docs/tutorials/getting_started.md)
+- [🤝 Contributing Guide](docs/CONTRIBUTING.md)
 
-## Documentation
+### API Reference
+- [🔌 Instrument Control](docs/api/instrument_control.md)
+- [🧪 Mock Testing](docs/api/mock_controller.md)
+- [📡 224G Ethernet](docs/api/eth_224g.md)
+- [📊 PAM4 Analysis](docs/api/pam4_analysis.md)
 
-Detailed documentation is available in the `docs/` folder:
-
-- [API Documentation](docs/api/index.md)
-- [Usage Guide](docs/USAGE.md)
-- [Installation Guide](docs/INSTALL.md)
-- [Getting Started Tutorial](docs/tutorials/getting_started.md)
-- [Contribution Guide](docs/CONTRIBUTING.md)
-
-## Contributing
-
-We welcome contributions from the community. Please read our [contributing guide](docs/CONTRIBUTING.md) to get started.
+### Guides & Tutorials
+- [🔧 Hardware Setup](docs/guides/instrument_setup.md)
+- [🏃 Mock Testing](docs/tutorials/mock_testing.md)
+- [📈 Signal Analysis](docs/tutorials/pam4_analysis.md)
+- [✅ Validation Guide](docs/tutorials/224g_validation.md)
 
 ### Development Setup
 
@@ -201,15 +336,26 @@ serdes-validation-framework/
 └── tox.ini
 ```
 
+## 🤝 Contributing
+
+We welcome contributions! See our [Contributing Guide](docs/CONTRIBUTING.md) for details on:
+- Code Style
+- Development Process
+- Submission Guidelines
+- Testing Requirements
+
 ## Community and Support
+
 For any questions, issues, or contributions, please open an issue on the [GitHub repository](https://github.com/muditbhargava66/serdes-validation-framework/issues). Contributions and feedback are always welcome.
 
 ## 📄 License
+
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
 
 ## Star History
+
 <a href="https://star-history.com/#muditbhargava66/serdes-validation-framework&Date">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=muditbhargava66/serdes-validation-framework&type=Date&theme=dark" />
@@ -219,12 +365,12 @@ Distributed under the MIT License. See `LICENSE` for more information.
 </a>
 
 ---  
-
   
 **Enjoy using the SerDes Validation Framework?**  
 ⭐️ Star the repo and consider contributing!  
   
-📫 **Contact**: [@muditbhargava66](https://github.com/muditbhargava66) 
+📫 **Contact**: [@muditbhargava66](https://github.com/muditbhargava66)
+🐛 **Report Issues**: [Issue Tracker](https://github.com/muditbhargava66/serdes-validation-framework/issues)
   
 © 2025 Mudit Bhargava. [MIT License](LICENSE)  
 <!-- Copyright symbol using HTML entity for better compatibility -->
