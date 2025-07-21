@@ -21,9 +21,6 @@ Key Features:
     - Comprehensive error handling
     - Test results storage and analysis
     - Mock instrument simulation
-
-Author: Mudit Bhargava
-Date: February 2025
 """
 
 import json

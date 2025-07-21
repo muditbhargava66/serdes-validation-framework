@@ -116,3 +116,5 @@ dmypy.json
 *.sln
 *.sw?
 *.user
+
+uv.lock

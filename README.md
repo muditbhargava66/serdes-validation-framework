@@ -12,7 +12,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/commits/main)
 [![Contributors](https://img.shields.io/github/contributors/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/graphs/contributors)
 
-**A comprehensive framework for validating high-speed SerDes protocols with automated data collection, advanced signal analysis, and multi-vendor instrument control.**
+**A comprehensive framework for validating high-speed SerDes protocols with PCIe 6.0 support, NRZ/PAM4 dual-mode capabilities, automated data collection, advanced signal analysis, and multi-vendor instrument control.**
 
 ![Banner](docs/images/serdes-framework-banner.png)
 
@@ -26,7 +26,16 @@
 - 🎛️ **Universal Instrument Control:** GPIB/USB interface for multi-vendor support
 - 📋 **Flexible Test Sequences:** Customizable, reusable test automation
 
-### New Features in v1.2.0
+### 🆕 New Features in v1.3.0
+- 🚀 **PCIe 6.0 Support:** Complete PCIe 6.0 specification compliance (64 GT/s)
+- 🔄 **NRZ/PAM4 Dual-Mode:** Seamless switching between signaling modes
+- 🎯 **Advanced Link Training:** Multi-phase adaptive training with convergence detection
+- ⚡ **Enhanced Equalization:** LMS, RLS, CMA, and decision-directed algorithms
+- 📏 **Multi-Lane Analysis:** Up to 16-lane support with skew detection
+- 👁️ **Advanced Eye Diagrams:** Statistical modeling with jitter decomposition
+- 🧪 **Stress Testing:** Environmental condition simulation and validation
+
+### Previous Features
 - 🔍 **Mock Testing Support:** Development and testing without physical hardware
 - 📡 **224G Ethernet Support:** Complete validation suite for 224G interfaces
 - 📊 **PAM4 Analysis:** Advanced PAM4 signal processing capabilities
@@ -77,6 +86,39 @@ compliance_results = sequence.run_compliance_test_suite(
 
 print(f"Training status: {training_results.convergence_status}")
 print(f"Compliance status: {compliance_results.test_status}")
+```
+
+### 🚀 PCIe 6.0 Validation
+
+```python
+from serdes_validation_framework.protocols.pcie.constants import SignalMode
+from serdes_validation_framework.instrument_control.pcie_analyzer import PCIeAnalyzer, PCIeConfig
+from serdes_validation_framework.protocols.pcie.link_training import create_pam4_trainer
+from serdes_validation_framework.instrument_control.mode_switcher import create_mode_switcher
+
+# Create mode switcher for NRZ/PAM4 dual-mode
+switcher = create_mode_switcher(default_mode=SignalMode.PAM4)
+result = switcher.switch_mode(SignalMode.PAM4)
+print(f"Mode switch: {result.success} in {result.switch_time*1000:.2f}ms")
+
+# Configure PCIe 6.0 analyzer
+config = PCIeConfig(
+    mode=SignalMode.PAM4,
+    sample_rate=200e9,  # 200 GSa/s
+    bandwidth=100e9,    # 100 GHz
+    voltage_range=1.2,
+    link_speed=64e9,    # 64 GT/s
+    lane_count=4
+)
+
+analyzer = PCIeAnalyzer(config)
+results = analyzer.analyze_signal(signal_data)
+print(f"SNR: {results['snr_db']:.1f} dB, EVM: {results['rms_evm_percent']:.2f}%")
+
+# Run link training
+trainer = create_pam4_trainer(target_ber=1e-12)
+training_result = trainer.run_training(signal_data)
+print(f"Training converged: {training_result.success}")
 ```
 
 ### 📊 PAM4 Signal Analysis

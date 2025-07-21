@@ -13,7 +13,7 @@ from ..instrument_control.mock_controller import get_instrument_controller
 
 logger = logging.getLogger(__name__)
 
-class TestSequencer:
+class PCIeTestSequencer:
     """Test sequence execution controller"""
 
     def __init__(self, controller: Optional[Any] = None) -> None:

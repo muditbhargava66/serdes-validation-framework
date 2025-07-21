@@ -8,7 +8,7 @@ from typing import Dict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.serdes_validation_framework.test_sequence.sequencer import TestSequencer
+from src.serdes_validation_framework.test_sequence.sequencer import PCIeTestSequencer as TestSequencer
 
 
 class MockInstrumentController:

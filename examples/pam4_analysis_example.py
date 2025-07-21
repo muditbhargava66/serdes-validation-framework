@@ -17,9 +17,6 @@ Dependencies:
     - matplotlib
     - logging
     - serdes_validation_framework
-
-Author: Mudit Bhargava
-Date: February 2025
 """
 
 import logging
