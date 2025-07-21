@@ -11,3 +11,4 @@ pyusb>=1.2.1
 python-usbtmc>=0.8
 gpib-ctypes @ git+https://github.com/tivek/gpib_ctypes
 zeroconf>=0.131.0
+linkify-it-py

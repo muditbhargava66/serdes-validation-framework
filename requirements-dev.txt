@@ -1,0 +1,32 @@
+# Development dependencies
+-r requirements.txt
+
+# Testing
+pytest>=7.1.1
+pytest-cov>=5.0
+pytest-asyncio>=0.25.0
+pytest-xdist>=3.6.0
+
+# Code quality
+ruff>=0.4.2
+mypy>=1.8.0
+pre-commit>=3.0
+
+# Build and packaging
+tox>=4.0
+build>=1.0.0
+twine>=5.0.0
+
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=1.0.0
+myst-parser>=0.18.1
+sphinx-markdown-tables
+sphinx-design
+sphinx-copybutton
+sphinx-autobuild
+linkify-it-py
+
+# Development tools
+ipython>=8.0.0
+jupyter>=1.0.0

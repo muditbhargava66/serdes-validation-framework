@@ -81,6 +81,7 @@ docs = [
   "sphinx>=4.0.0",
   "sphinx-rtd-theme>=1.0.0",
   "myst-parser>=0.18.1",
+  "linkify-it-py",
   "sphinx-markdown-tables",
   "sphinx-design",
   "sphinx-copybutton",
