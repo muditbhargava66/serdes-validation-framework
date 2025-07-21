@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 
 from ..data_analysis.pam4_analyzer import EVMResults, EyeResults, PAM4Analyzer, PAM4Levels
-from .sequencer import TestSequencer
+from .sequencer import PCIeTestSequencer as TestSequencer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

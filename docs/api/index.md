@@ -38,6 +38,13 @@ Signal processing and analysis tools:
   - Link training
   - Performance validation
 
+- [PCIe 6.0](pcie.md) **NEW**
+  - Complete PCIe 6.0 specification support
+  - NRZ/PAM4 dual-mode capabilities
+  - Advanced link training and equalization
+  - Comprehensive compliance testing
+  - Multi-lane analysis with skew detection
+
 ## Type Safety
 
 All APIs enforce strict type checking:

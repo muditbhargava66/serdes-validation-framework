@@ -35,6 +35,7 @@ api/mock_controller
 api/instrument_control
 api/eth_224g
 api/pam4_analysis
+api/pcie
 ```
 
 ```{toctree}
@@ -45,6 +46,7 @@ tutorials/getting_started
 tutorials/mock_testing
 tutorials/224g_validation
 tutorials/pam4_analysis
+tutorials/pcie_validation
 ```
 
 ```{toctree}
@@ -63,6 +65,8 @@ guides/testing
 
 examples/mock_controller_examples
 examples/testing_examples
+examples/pcie_examples
+examples/data_analysis_examples
 ```
 
 ## Indices and Tables
