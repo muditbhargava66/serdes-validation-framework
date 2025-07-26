@@ -1,4 +1,5 @@
 # .readthedocs.yaml
+# ReadTheDocs configuration for SerDes Validation Framework
 version: 2
 
 build:
@@ -6,17 +7,12 @@ build:
   tools:
     python: "3.10"
   jobs:
-    pre_create_environment:
-      # Set up mock mode for documentation builds
-      - echo "SVF_MOCK_MODE=1" >> $READTHEDOCS_VIRTUALENV_PATH/bin/activate
     post_install:
-      # Ensure mock mode is available during doc generation
       - export SVF_MOCK_MODE=1
 
 sphinx:
   configuration: docs/conf.py
-  fail_on_warning: false  # Allow warnings for mock imports
-  builder: html
+  fail_on_warning: false
 
 python:
   install:
@@ -24,26 +20,7 @@ python:
       path: .
       extra_requirements:
         - docs
-        - dev  # Include development dependencies for mock support
     - requirements: docs/requirements.txt
 
-# Build formats
 formats:
-  - pdf
-  - epub
   - htmlzip
-
-# Search configuration
-search:
-  ranking:
-    api/*: 2
-    tutorials/*: 3
-    guides/*: 1
-    examples/*: 1
-
-# Subprojects for versioning
-subprojects:
-  include:
-    - usb4-api
-    - mock-testing
-    - reporting-system
