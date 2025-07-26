@@ -10,9 +10,11 @@ This directory contains production-ready scripts for comprehensive SerDes valida
 - **`instrument_control.py`** - Instrument control and testing
 - **`data_collection.py`** - Automated data collection
 - **`test_sequence.py`** - Test sequence automation
+- **`multi_protocol_validation.py`** - Unified multi-protocol validation framework
 
 ### Protocol-Specific Scripts
 - **`eth_224g_validation.py`** - 224G Ethernet validation
+- **`usb4_validation.py`** - USB4/Thunderbolt 4 comprehensive validation
 
 ## 🚀 Quick Start
 
@@ -26,6 +28,30 @@ python scripts/pcie_validation.py --mode pam4 --benchmark
 
 # Multi-lane validation with custom sample count
 python scripts/pcie_validation.py --mode both --lanes 8 --samples 20000
+```
+
+### USB4/Thunderbolt 4 Validation
+```bash
+# Complete USB4/Thunderbolt 4 validation
+python scripts/usb4_validation.py --mode both --tunneling all --verbose
+
+# Thunderbolt 4 certification testing
+python scripts/usb4_validation.py --mode thunderbolt --certification --benchmark
+
+# USB4 tunneling validation
+python scripts/usb4_validation.py --mode usb4 --tunneling pcie --samples 10000
+```
+
+### Multi-Protocol Validation
+```bash
+# Validate all protocols with cross-comparison
+python scripts/multi_protocol_validation.py --protocols all --compare --benchmark
+
+# Compare specific protocols
+python scripts/multi_protocol_validation.py --protocols pcie,usb4 --compare --verbose
+
+# Comprehensive validation with all features
+python scripts/multi_protocol_validation.py --protocols all --samples 12000 --benchmark --compare
 ```
 
 ### Data Analysis
@@ -54,6 +80,7 @@ SVF_MOCK_MODE=1 python scripts/instrument_control.py
 ### 1. Validation Scripts
 - **PCIe 6.0 Validation** - Complete protocol compliance testing
 - **224G Ethernet Validation** - High-speed Ethernet testing
+- **USB4/Thunderbolt 4 Validation** - Comprehensive USB4 and Thunderbolt 4 testing
 - **Multi-protocol Validation** - Cross-protocol analysis
 
 ### 2. Analysis Scripts
@@ -106,6 +133,36 @@ Options:
   --mock                     Force mock mode
 ```
 
+### USB4/Thunderbolt 4 Validation Script
+```bash
+python scripts/usb4_validation.py [OPTIONS]
+
+Options:
+  --mode {usb4,thunderbolt,both}    Protocol mode to test (default: both)
+  --lanes {1,2}                     Number of lanes (default: 2)
+  --tunneling {pcie,dp,usb32,all}   Tunneling protocols (default: all)
+  --samples N                       Samples per test (default: 8000)
+  --output DIR                      Output directory (default: ./usb4_results)
+  --verbose                         Enable verbose logging
+  --benchmark                       Run performance benchmarks
+  --certification                   Run Thunderbolt 4 certification tests
+  --mock                           Force mock mode
+```
+
+### Multi-Protocol Validation Script
+```bash
+python scripts/multi_protocol_validation.py [OPTIONS]
+
+Options:
+  --protocols LIST              Protocols to test: pcie,eth224g,usb4,thunderbolt,all (default: all)
+  --samples N                   Samples per test (default: 8000)
+  --output DIR                  Output directory (default: ./multi_protocol_results)
+  --verbose                     Enable verbose logging
+  --benchmark                   Run performance benchmarks
+  --compare                     Generate cross-protocol comparison
+  --mock                       Force mock mode
+```
+
 ## 📈 Performance Benchmarks
 
 ### PCIe Validation Performance
@@ -137,6 +194,23 @@ python scripts/pcie_validation.py \
   --samples 50000 \
   --output ./production_results \
   --benchmark
+
+# Complete USB4/Thunderbolt 4 validation for production
+python scripts/usb4_validation.py \
+  --mode both \
+  --tunneling all \
+  --samples 12000 \
+  --certification \
+  --benchmark \
+  --output ./usb4_production_results
+
+# Comprehensive multi-protocol validation for production
+python scripts/multi_protocol_validation.py \
+  --protocols all \
+  --samples 15000 \
+  --benchmark \
+  --compare \
+  --output ./multi_protocol_production_results
 ```
 
 ### Development Testing
@@ -146,6 +220,14 @@ SVF_MOCK_MODE=1 python scripts/pcie_validation.py \
   --mode pam4 \
   --lanes 2 \
   --samples 5000 \
+  --verbose
+
+# USB4 development testing with mock mode
+python scripts/usb4_validation.py \
+  --mode usb4 \
+  --tunneling pcie \
+  --samples 4000 \
+  --mock \
   --verbose
 ```
 
@@ -300,7 +382,7 @@ Usage:
 
 Author: Your Name
 Date: Current Date
-Version: 1.3.0
+Version: 1.4.0
 """
 
 import argparse

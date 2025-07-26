@@ -14,22 +14,28 @@ from ..data_analysis.analyzer import DataAnalyzer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class PAM4Levels:
     """Data class for PAM4 voltage levels"""
+
     level_means: npt.NDArray[np.float64]
     level_separations: npt.NDArray[np.float64]
     uniformity: float
 
+
 @dataclass
 class EVMResults:
     """Data class for EVM measurement results"""
+
     rms_evm_percent: float
     peak_evm_percent: float
+
 
 @dataclass
 class EyeResults:
     """Data class for eye diagram analysis results with auto-calculated worst values"""
+
     eye_heights: List[float]
     eye_widths: List[float]
     _worst_eye_height: float = field(init=False, repr=False)
@@ -62,6 +68,7 @@ class EyeResults:
         min_idx = self.eye_widths.index(min(self.eye_widths))
         self.eye_widths[min_idx] = value
 
+
 class PAM4Analyzer(DataAnalyzer):
     """Enhanced PAM4 signal analysis for 224G Ethernet with type safety and improved signal quality"""
 
@@ -69,16 +76,16 @@ class PAM4Analyzer(DataAnalyzer):
         self,
         data: Dict[str, Union[List[float], npt.NDArray[np.float64]]],
         sample_rate: float = 256e9,  # 256 GSa/s default
-        symbol_rate: float = 112e9   # 112 Gbaud default
+        symbol_rate: float = 112e9,  # 112 Gbaud default
     ) -> None:
         """
         Initialize PAM4 analyzer with type checking and validation
-        
+
         Args:
             data: Dictionary containing signal data with float values
             sample_rate: Sampling rate in Hz (default: 256 GSa/s)
             symbol_rate: Symbol rate in Hz (default: 112 Gbaud)
-            
+
         Raises:
             AssertionError: If data validation fails
         """
@@ -88,12 +95,10 @@ class PAM4Analyzer(DataAnalyzer):
         for key, value in data.items():
             if isinstance(value, list):
                 assert len(value) > 0, f"Data array {key} cannot be empty"
-                assert all(isinstance(x, float) for x in value), \
-                    f"All values in {key} must be floating-point numbers"
+                assert all(isinstance(x, float) for x in value), f"All values in {key} must be floating-point numbers"
             elif isinstance(value, np.ndarray):
                 assert value.size > 0, f"Data array {key} cannot be empty"
-                assert np.issubdtype(value.dtype, np.floating), \
-                    f"Array {key} must contain floating-point numbers"
+                assert np.issubdtype(value.dtype, np.floating), f"Array {key} must contain floating-point numbers"
 
                 # Validate signal amplitude
                 data_range = np.ptp(value)
@@ -106,21 +111,17 @@ class PAM4Analyzer(DataAnalyzer):
 
         logger.info("PAM4Analyzer initialized with enhanced validation")
 
-    def analyze_level_separation(
-        self,
-        voltage_column: str,
-        threshold: float = 0.1
-    ) -> PAM4Levels:
+    def analyze_level_separation(self, voltage_column: str, threshold: float = 0.1) -> PAM4Levels:
         """
         Analyze PAM4 voltage level separation with improved uniformity
-        
+
         Args:
             voltage_column: Name of the voltage data column
             threshold: Threshold for level detection (default: 0.1)
-            
+
         Returns:
             PAM4Levels object containing analysis results
-            
+
         Raises:
             KeyError: If voltage column not found
             ValueError: If level detection fails
@@ -176,21 +177,13 @@ class PAM4Analyzer(DataAnalyzer):
             if not 0 <= uniformity <= 1:
                 logger.warning(f"Unusual uniformity value: {uniformity}")
 
-            return PAM4Levels(
-                level_means=adjusted_peaks,
-                level_separations=final_gaps,
-                uniformity=uniformity
-            )
+            return PAM4Levels(level_means=adjusted_peaks, level_separations=final_gaps, uniformity=uniformity)
 
         except Exception as e:
             logger.error(f"Failed to analyze level separation: {e}")
             raise
 
-    def calculate_evm(
-        self,
-        measured_column: str,
-        timestamp_column: str
-    ) -> EVMResults:
+    def calculate_evm(self, measured_column: str, timestamp_column: str) -> EVMResults:
         """
         Calculate Error Vector Magnitude with improved accuracy
 
@@ -224,7 +217,7 @@ class PAM4Analyzer(DataAnalyzer):
             optimal_phase = phases[np.argmax(var_by_phase)]
 
             for i in range(optimal_phase, len(normalized), samples_per_symbol):
-                samples = normalized[i:i+samples_per_symbol]
+                samples = normalized[i : i + samples_per_symbol]
 
                 # Improved PAM4 symbol decision using k-means clustering if enough samples
                 if len(samples) >= 4:
@@ -234,11 +227,11 @@ class PAM4Analyzer(DataAnalyzer):
                     # Not enough samples for clustering, just use mean
                     decided_level = np.mean(samples)
 
-                ideal_signal[i:i+samples_per_symbol] = decided_level
+                ideal_signal[i : i + samples_per_symbol] = decided_level
 
             # Fill any remaining samples
             if len(normalized) > len(ideal_signal):
-                ideal_signal = np.pad(ideal_signal, (0, len(normalized) - len(ideal_signal)), 'edge')
+                ideal_signal = np.pad(ideal_signal, (0, len(normalized) - len(ideal_signal)), "edge")
 
             # 3. Calculate error vector magnitude
             error_vector = normalized - ideal_signal
@@ -249,32 +242,24 @@ class PAM4Analyzer(DataAnalyzer):
             rms_evm = (rms_error / ideal_rms) * 100
             peak_evm = (peak_error / ideal_rms) * 100
 
-            return EVMResults(
-                rms_evm_percent=float(min(rms_evm, 100.0)),
-                peak_evm_percent=float(min(peak_evm, 100.0))
-            )
+            return EVMResults(rms_evm_percent=float(min(rms_evm, 100.0)), peak_evm_percent=float(min(peak_evm, 100.0)))
 
         except Exception as e:
             logger.error(f"Failed to calculate EVM: {e}")
             raise
 
-    def analyze_eye_diagram(
-        self,
-        voltage_column: str,
-        time_column: str,
-        ui_period: float = 8.9e-12
-    ) -> EyeResults:
+    def analyze_eye_diagram(self, voltage_column: str, time_column: str, ui_period: float = 8.9e-12) -> EyeResults:
         """
         Analyze eye diagram with improved measurements
-        
+
         Args:
             voltage_column: Name of the voltage data column
             time_column: Name of the time data column
             ui_period: Unit interval period in seconds
-            
+
         Returns:
             EyeResults object containing eye measurements
-            
+
         Raises:
             AssertionError: If input validation fails
             ValueError: If eye analysis fails
@@ -295,143 +280,136 @@ class PAM4Analyzer(DataAnalyzer):
             v_normalized = self._normalize_signal(filtered_voltage)
 
             # Ensure sufficient data
-            assert len(t_normalized) >= (ui_period * self.data[time_column].values[-1]), \
-                "Insufficient data for eye diagram analysis"
+            assert len(t_normalized) >= (
+                ui_period * self.data[time_column].values[-1]
+            ), "Insufficient data for eye diagram analysis"
 
             # Calculate eye parameters with improved accuracy
             eye_heights = self._calculate_eye_heights(v_normalized) or [0.6, 0.6, 0.6]
             eye_widths = self._calculate_eye_widths(t_normalized, v_normalized) or [0.6, 0.6, 0.6]
 
-            return EyeResults(
-                eye_heights=list(map(float, eye_heights)),
-                eye_widths=list(map(float, eye_widths))
-            )
+            return EyeResults(eye_heights=list(map(float, eye_heights)), eye_widths=list(map(float, eye_widths)))
 
         except Exception as e:
             logger.error(f"Failed to analyze eye diagram: {e}")
             raise
 
-    def _normalize_signal(
-        self,
-        signal: npt.NDArray[np.float64]
-    ) -> npt.NDArray[np.float64]:
+    def _normalize_signal(self, signal: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         """
         Normalize signal with deterministic PAM4 level scaling
-        
+
         This method implements a robust normalization strategy for PAM4 signals:
         1. Precise DC offset removal
         2. Dynamic range scaling based on percentiles
         3. Mean absolute value adjustment
         4. Final centering
-        
+
         Args:
             signal: Input signal array of float64 type
-            
+
         Returns:
             Normalized signal array with target statistics:
                 - Zero mean
                 - Mean absolute value of 1.5
                 - Appropriate dynamic range for PAM4
-            
+
         Raises:
             AssertionError: If input validation fails
             ValueError: If signal statistics are invalid
         """
         # Input validation
-        assert isinstance(signal, np.ndarray), \
-            f"Signal must be numpy array, got {type(signal)}"
-        assert np.issubdtype(signal.dtype, np.floating), \
-            f"Signal must be floating-point type, got {signal.dtype}"
+        assert isinstance(signal, np.ndarray), f"Signal must be numpy array, got {type(signal)}"
+        assert np.issubdtype(signal.dtype, np.floating), f"Signal must be floating-point type, got {signal.dtype}"
         assert signal.size > 0, "Signal array cannot be empty"
         assert not np.any(np.isnan(signal)), "Signal contains NaN values"
         assert not np.any(np.isinf(signal)), "Signal contains infinite values"
-        
+
         try:
             # Log initial signal statistics
-            logger.info(f"Signal before normalization: mean={np.mean(signal):.3f}, "
-                       f"std={np.std(signal):.3f}, range={np.ptp(signal):.3f}")
-            
+            logger.info(
+                f"Signal before normalization: mean={np.mean(signal):.3f}, "
+                f"std={np.std(signal):.3f}, range={np.ptp(signal):.3f}"
+            )
+
             # Step 1: Remove DC offset with high precision
             signal_centered = signal - np.mean(signal)
-            
+
             # Step 2: Calculate initial scaling using robust statistics
             p_low, p_high = np.percentile(signal_centered, [1, 99])
             initial_range = p_high - p_low
-            
+
             if initial_range > 0:
                 # Scale to nominal PAM4 range (-3 to +3) preserving symmetry
                 target_range = 6.0  # Standard PAM4 range
                 scale_factor = target_range / initial_range
                 normalized = signal_centered * scale_factor
-                
+
                 # Fine-tune to achieve target mean absolute value
                 current_mean_abs = np.mean(np.abs(normalized))
                 if current_mean_abs > 0:
                     target_mean_abs = 1.5  # Standard target for PAM4
                     fine_scale = target_mean_abs / current_mean_abs
                     normalized = normalized * fine_scale
-                    
+
                     # Ensure precise centering
                     final_offset = np.mean(normalized)
                     if abs(final_offset) > 1e-10:  # Numerical stability threshold
                         normalized = normalized - final_offset
-                    
+
                     # Validate final statistics
                     final_mean = np.mean(normalized)
                     final_mean_abs = np.mean(np.abs(normalized))
-                    logger.info(f"Normalized signal stats: mean={final_mean:.3e}, "
-                              f"mean_abs={final_mean_abs:.3f}")
-                    
+                    logger.info(f"Normalized signal stats: mean={final_mean:.3e}, " f"mean_abs={final_mean_abs:.3f}")
+
                     return normalized
-            
+
             # Fallback for low amplitude signals using standard deviation
             std_dev = np.std(signal_centered)
             if std_dev > 0:
                 normalized = signal_centered * (1.5 / std_dev)
                 logger.info("Used standard deviation based normalization")
                 return normalized
-            
+
             # Last resort for zero-variance signals
             logger.warning("Zero variance signal detected, returning zeros")
             return np.zeros_like(signal)
-            
+
         except Exception as e:
             logger.error(f"Normalization failed: {e}")
             # Return centered signal as safe fallback
             return signal - np.mean(signal)
 
     def _find_voltage_levels(
-        self,
-        histogram: npt.NDArray[np.float64],
-        bin_edges: npt.NDArray[np.float64]
+        self, histogram: npt.NDArray[np.float64], bin_edges: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
         """
         Find PAM4 voltage levels with improved peak detection
-        
+
         Args:
             histogram: Signal histogram
             bin_edges: Histogram bin edges
-            
+
         Returns:
             Array of voltage levels
-            
+
         Raises:
             AssertionError: If inputs are invalid
             ValueError: If level detection fails
         """
         # Enhanced input validation
-        assert isinstance(histogram, np.ndarray), \
-            f"Histogram must be numpy array, got {type(histogram)}"
-        assert isinstance(bin_edges, np.ndarray), \
-            f"Bin edges must be numpy array, got {type(bin_edges)}"
-        assert np.issubdtype(histogram.dtype, np.floating), \
-            f"Histogram must contain floating-point numbers, got {histogram.dtype}"
-        assert np.issubdtype(bin_edges.dtype, np.floating), \
-            f"Bin edges must contain floating-point numbers, got {bin_edges.dtype}"
+        assert isinstance(histogram, np.ndarray), f"Histogram must be numpy array, got {type(histogram)}"
+        assert isinstance(bin_edges, np.ndarray), f"Bin edges must be numpy array, got {type(bin_edges)}"
+        assert np.issubdtype(
+            histogram.dtype, np.floating
+        ), f"Histogram must contain floating-point numbers, got {histogram.dtype}"
+        assert np.issubdtype(
+            bin_edges.dtype, np.floating
+        ), f"Bin edges must contain floating-point numbers, got {bin_edges.dtype}"
         assert len(histogram) > 0, "Histogram cannot be empty"
         assert len(bin_edges) > 0, "Bin edges cannot be empty"
-        assert len(bin_edges) == len(histogram) + 1, \
-            f"Bin edges length ({len(bin_edges)}) must be histogram length + 1 ({len(histogram) + 1})"
+        assert (
+            len(bin_edges) == len(histogram) + 1
+        ), f"Bin edges length ({len(bin_edges)}) must be histogram length + 1 ({len(histogram) + 1})"
         assert not np.any(np.isnan(histogram)), "Histogram contains NaN values"
         assert not np.any(np.isnan(bin_edges)), "Bin edges contains NaN values"
         assert not np.any(np.isinf(histogram)), "Histogram contains infinite values"
@@ -455,19 +433,16 @@ class PAM4Analyzer(DataAnalyzer):
         peaks = None
 
         for prominence in prominence_thresholds:
-            peaks, properties = find_peaks(smoothed,
-                                        height=0.1,
-                                        distance=len(smoothed)//10,
-                                        prominence=prominence)
+            peaks, properties = find_peaks(smoothed, height=0.1, distance=len(smoothed) // 10, prominence=prominence)
 
             if len(peaks) >= 4:
-                sorted_indices = np.argsort(properties['prominences'])[-4:]
+                sorted_indices = np.argsort(properties["prominences"])[-4:]
                 peaks = np.sort(peaks[sorted_indices])
                 break
 
         if peaks is None or len(peaks) < 4:
             # Try one last time with minimal constraints
-            peaks, properties = find_peaks(smoothed, distance=len(smoothed)//20)
+            peaks, properties = find_peaks(smoothed, distance=len(smoothed) // 20)
             if len(peaks) >= 4:
                 # Sort peaks by height and take top 4
                 peak_heights = smoothed[peaks]
@@ -488,21 +463,17 @@ class PAM4Analyzer(DataAnalyzer):
 
         return levels
 
-    def _calculate_eye_heights(
-        self,
-        normalized_signal: npt.NDArray[np.float64],
-        threshold: float = 0.1
-    ) -> List[float]:
+    def _calculate_eye_heights(self, normalized_signal: npt.NDArray[np.float64], threshold: float = 0.1) -> List[float]:
         """
         Calculate eye heights with improved accuracy
-        
+
         Args:
             normalized_signal: Normalized signal array
             threshold: Threshold for eye measurement
-            
+
         Returns:
             List of eye heights
-            
+
         Raises:
             AssertionError: If input validation fails
         """
@@ -516,8 +487,8 @@ class PAM4Analyzer(DataAnalyzer):
         eyes = []
         for level in range(3):  # 3 eyes in PAM4
             # Improved level masking
-            lower_bound = 2*level - 3 - threshold
-            upper_bound = 2*level - 1 + threshold
+            lower_bound = 2 * level - 3 - threshold
+            upper_bound = 2 * level - 1 + threshold
             mask = (filtered_signal > lower_bound) & (filtered_signal < upper_bound)
 
             if np.any(mask):
@@ -532,22 +503,19 @@ class PAM4Analyzer(DataAnalyzer):
         return eyes
 
     def _calculate_eye_widths(
-        self,
-        time_normalized: npt.NDArray[np.float64],
-        voltage_normalized: npt.NDArray[np.float64],
-        threshold: float = 0.1
+        self, time_normalized: npt.NDArray[np.float64], voltage_normalized: npt.NDArray[np.float64], threshold: float = 0.1
     ) -> List[float]:
         """
         Calculate eye widths with improved accuracy
-        
+
         Args:
             time_normalized: Normalized time array
             voltage_normalized: Normalized voltage array
             threshold: Threshold for width measurement
-            
+
         Returns:
             List of eye widths
-            
+
         Raises:
             AssertionError: If input validation fails
         """

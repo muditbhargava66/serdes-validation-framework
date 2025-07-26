@@ -1,0 +1,278 @@
+{
+  "description": "Comprehensive Thunderbolt 4 device chain configuration for validation testing",
+  "version": "1.4.0",
+  "chain_configuration": {
+    "max_devices": 6,
+    "total_power_budget": 100.0,
+    "total_bandwidth": 40000000000,
+    "test_duration": 60.0,
+    "enable_hot_plug_testing": true,
+    "enable_stress_testing": true
+  },
+  "devices": [
+    {
+      "device_id": "tb4_host_controller",
+      "device_type": "HOST",
+      "position": 0,
+      "vendor_id": "8086",
+      "product_id": "1234",
+      "firmware_version": "1.0.0",
+      "power_consumption": 5.0,
+      "bandwidth_requirement": 10000000000,
+      "downstream_ports": ["port0"],
+      "is_hub": false,
+      "max_downstream_devices": 1,
+      "capabilities": {
+        "thunderbolt_version": "4.0",
+        "usb4_version": "2.0",
+        "max_link_speed": "40Gbps",
+        "security_level": "SL1",
+        "power_delivery": true,
+        "display_support": false
+      },
+      "test_parameters": {
+        "stability_threshold": 0.95,
+        "thermal_limit": 85.0,
+        "max_response_time": 0.01
+      }
+    },
+    {
+      "device_id": "thunderbolt_dock_pro",
+      "device_type": "HUB",
+      "position": 1,
+      "vendor_id": "8086",
+      "product_id": "5678",
+      "firmware_version": "2.1.0",
+      "power_consumption": 25.0,
+      "bandwidth_requirement": 30000000000,
+      "downstream_ports": ["port1", "port2", "port3", "port4"],
+      "is_hub": true,
+      "max_downstream_devices": 4,
+      "capabilities": {
+        "thunderbolt_version": "4.0",
+        "usb4_version": "2.0",
+        "max_link_speed": "40Gbps",
+        "security_level": "SL1",
+        "power_delivery": true,
+        "display_support": true,
+        "max_power_delivery": 100.0,
+        "usb_pd_versions": ["PD2.0", "PD3.0", "PD3.1"],
+        "display_protocols": ["DisplayPort1.4", "HDMI2.1"]
+      },
+      "test_parameters": {
+        "stability_threshold": 0.90,
+        "thermal_limit": 80.0,
+        "max_response_time": 0.015,
+        "power_efficiency_target": 0.85
+      }
+    },
+    {
+      "device_id": "4k_display_monitor",
+      "device_type": "DISPLAY",
+      "position": 2,
+      "vendor_id": "1002",
+      "product_id": "9ABC",
+      "firmware_version": "3.2.1",
+      "power_consumption": 35.0,
+      "bandwidth_requirement": 25000000000,
+      "downstream_ports": [],
+      "is_hub": false,
+      "max_downstream_devices": 0,
+      "capabilities": {
+        "thunderbolt_version": "4.0",
+        "usb4_version": "2.0",
+        "max_link_speed": "40Gbps",
+        "security_level": "SL0",
+        "power_delivery": false,
+        "display_support": true,
+        "resolution": "3840x2160",
+        "refresh_rate": "60Hz",
+        "color_depth": "10bit",
+        "hdr_support": true
+      },
+      "test_parameters": {
+        "stability_threshold": 0.92,
+        "thermal_limit": 75.0,
+        "max_response_time": 0.02,
+        "display_latency_target": 0.016
+      }
+    },
+    {
+      "device_id": "nvme_ssd_external",
+      "device_type": "DEVICE",
+      "position": 3,
+      "vendor_id": "144D",
+      "product_id": "DEF0",
+      "firmware_version": "1.5.2",
+      "power_consumption": 15.0,
+      "bandwidth_requirement": 20000000000,
+      "downstream_ports": [],
+      "is_hub": false,
+      "max_downstream_devices": 0,
+      "capabilities": {
+        "thunderbolt_version": "4.0",
+        "usb4_version": "2.0",
+        "max_link_speed": "40Gbps",
+        "security_level": "SL1",
+        "power_delivery": false,
+        "display_support": false,
+        "storage_capacity": "2TB",
+        "interface": "NVMe",
+        "max_sequential_read": "3500MB/s",
+        "max_sequential_write": "3000MB/s"
+      },
+      "test_parameters": {
+        "stability_threshold": 0.95,
+        "thermal_limit": 70.0,
+        "max_response_time": 0.005,
+        "io_performance_target": 0.90
+      }
+    },
+    {
+      "device_id": "audio_interface_pro",
+      "device_type": "DEVICE",
+      "position": 4,
+      "vendor_id": "1234",
+      "product_id": "ABCD",
+      "firmware_version": "2.0.1",
+      "power_consumption": 12.0,
+      "bandwidth_requirement": 8000000000,
+      "downstream_ports": [],
+      "is_hub": false,
+      "max_downstream_devices": 0,
+      "capabilities": {
+        "thunderbolt_version": "4.0",
+        "usb4_version": "2.0",
+        "max_link_speed": "40Gbps",
+        "security_level": "SL0",
+        "power_delivery": false,
+        "display_support": false,
+        "audio_channels": 32,
+        "sample_rate": "192kHz",
+        "bit_depth": "32bit",
+        "latency": "2ms"
+      },
+      "test_parameters": {
+        "stability_threshold": 0.98,
+        "thermal_limit": 65.0,
+        "max_response_time": 0.002,
+        "audio_latency_target": 0.002
+      }
+    },
+    {
+      "device_id": "network_adapter_10g",
+      "device_type": "DEVICE",
+      "position": 5,
+      "vendor_id": "8086",
+      "product_id": "EFGH",
+      "firmware_version": "1.8.3",
+      "power_consumption": 18.0,
+      "bandwidth_requirement": 12000000000,
+      "downstream_ports": [],
+      "is_hub": false,
+      "max_downstream_devices": 0,
+      "capabilities": {
+        "thunderbolt_version": "4.0",
+        "usb4_version": "2.0",
+        "max_link_speed": "40Gbps",
+        "security_level": "SL1",
+        "power_delivery": false,
+        "display_support": false,
+        "network_speed": "10Gbps",
+        "protocols": ["TCP/IP", "UDP", "RDMA"],
+        "offload_features": ["TSO", "RSC", "VXLAN"]
+      },
+      "test_parameters": {
+        "stability_threshold": 0.96,
+        "thermal_limit": 80.0,
+        "max_response_time": 0.001,
+        "network_latency_target": 0.0001
+      }
+    }
+  ],
+  "test_scenarios": [
+    {
+      "name": "basic_enumeration",
+      "description": "Test basic device enumeration and recognition",
+      "enabled": true,
+      "duration": 30.0,
+      "parameters": {
+        "enumeration_timeout": 10.0,
+        "retry_count": 3
+      }
+    },
+    {
+      "name": "hot_plug_stress",
+      "description": "Stress test hot plug and unplug operations",
+      "enabled": true,
+      "duration": 120.0,
+      "parameters": {
+        "plug_unplug_cycles": 50,
+        "cycle_interval": 2.0,
+        "randomize_timing": true
+      }
+    },
+    {
+      "name": "bandwidth_saturation",
+      "description": "Test bandwidth allocation under saturation conditions",
+      "enabled": true,
+      "duration": 180.0,
+      "parameters": {
+        "target_utilization": 0.95,
+        "traffic_patterns": ["sequential", "random", "mixed"],
+        "measure_latency": true
+      }
+    },
+    {
+      "name": "power_management",
+      "description": "Test power state transitions and management",
+      "enabled": true,
+      "duration": 240.0,
+      "parameters": {
+        "test_states": ["U0", "U1", "U2", "U3"],
+        "transition_cycles": 20,
+        "measure_power": true
+      }
+    },
+    {
+      "name": "thermal_stress",
+      "description": "Test thermal management under stress conditions",
+      "enabled": false,
+      "duration": 600.0,
+      "parameters": {
+        "target_temperature": 70.0,
+        "thermal_ramp_rate": 2.0,
+        "monitor_throttling": true
+      }
+    },
+    {
+      "name": "security_validation",
+      "description": "Test security features and DMA protection",
+      "enabled": true,
+      "duration": 90.0,
+      "parameters": {
+        "test_dma_protection": true,
+        "test_authentication": true,
+        "simulate_attacks": true
+      }
+    }
+  ],
+  "validation_criteria": {
+    "overall_stability_threshold": 0.90,
+    "bandwidth_efficiency_threshold": 0.80,
+    "power_efficiency_threshold": 0.85,
+    "thermal_compliance_threshold": 0.95,
+    "security_compliance_threshold": 1.0,
+    "max_enumeration_time": 5.0,
+    "max_hot_plug_time": 2.0,
+    "max_power_transition_time": 1.0
+  },
+  "reporting": {
+    "generate_html_report": true,
+    "generate_json_report": true,
+    "generate_pdf_report": false,
+    "include_detailed_metrics": true,
+    "include_recommendations": true,
+    "include_trend_analysis": true
+  }
+}

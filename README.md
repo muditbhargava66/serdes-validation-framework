@@ -2,6 +2,8 @@
 
 # 🚀 SerDes Validation Framework
 
+![serdes-validation-framework Version](https://img.shields.io/badge/version-1.4.0-blue)
+![Production Ready](https://img.shields.io/badge/status-production%20ready-brightgreen)
 [![CI](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml)
 [![Lint](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml)
 [![CodeQL](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/github-code-scanning/codeql)
@@ -11,6 +13,10 @@
 [![Documentation](https://img.shields.io/badge/docs-readthedocs.io-blue)](https://serdes-validation-framework.readthedocs.io/)
 [![Last Commit](https://img.shields.io/github/last-commit/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/commits/main)
 [![Contributors](https://img.shields.io/github/contributors/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/graphs/contributors)
+[![Open Issues](https://img.shields.io/github/issues/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/issues)
+[![Open PRs](https://img.shields.io/github/issues-pr/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/pulls)
+[![GitHub stars](https://img.shields.io/github/stars/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/muditbhargava66/serdes-validation-framework)](https://github.com/muditbhargava66/serdes-validation-framework/network/members)
 
 **A comprehensive framework for validating high-speed SerDes protocols with PCIe 6.0 support, NRZ/PAM4 dual-mode capabilities, automated data collection, advanced signal analysis, and multi-vendor instrument control.**
 
@@ -26,7 +32,51 @@
 - 🎛️ **Universal Instrument Control:** GPIB/USB interface for multi-vendor support
 - 📋 **Flexible Test Sequences:** Customizable, reusable test automation
 
-### 🆕 New Features in v1.3.0
+### 🆕 Latest Features in v1.4.0
+- 🔌 **Complete USB4/Thunderbolt 4 Support:** Full 40 Gbps dual-lane validation with tunneling protocols
+- 🔒 **Thunderbolt 4 Certification Suite:** Intel-compliant certification with security validation and DMA protection
+- 🌐 **Multi-Protocol Tunneling:** PCIe, DisplayPort, and USB 3.2 tunneling validation with integrity checking
+- 🔄 **Automatic Protocol Detection:** Intelligent signal analysis and protocol identification
+- ⚡ **Unified Validation Framework:** Single interface for PCIe, Ethernet, and USB4 validation
+- 🎨 **Comprehensive Visualization System:** Professional-grade visualizations with interactive dashboards
+  - **Advanced Eye Diagrams:** Automatic measurements with SNR, jitter, and eye opening analysis
+  - **Interactive Dashboards:** Real-time web-based analysis with Plotly integration
+  - **Multi-Protocol Comparison:** Side-by-side protocol analysis and benchmarking
+  - **Protocol-Specific Features:** USB4 tunneling, PCIe link training, Ethernet PAM4 analysis
+- 📊 **Advanced Jitter Analysis:** SSC-aware jitter measurement with RJ/DJ/PJ decomposition
+- 🔧 **Power Management Testing:** Complete USB4 power state validation (U0-U3) with thermal management
+- 🔗 **Link Recovery Testing:** Comprehensive error injection and recovery validation
+- 🚀 **Performance Optimization:** Enhanced processing with parallel lane analysis (40% faster)
+- 📈 **Integration Testing:** Comprehensive multi-protocol integration test suite
+- 🛡️ **Production Ready:** Robust error handling, comprehensive documentation, and 98% test coverage
+
+### 🔧 Enhanced Production-Ready Implementations
+
+#### Advanced Daisy Chain Validation
+- **Real Device Stability Monitoring** - Power, thermal, link quality, and response time monitoring
+- **Multi-Phase Hot Plug Simulation** - 7-phase device enumeration with proper resource allocation
+- **Comprehensive Chain Reconfiguration** - Bandwidth and power reallocation after topology changes
+- **Advanced Error Recovery** - Sophisticated error handling and recovery mechanisms
+
+#### Security Testing Suite
+- **DMA Attack Simulation** - 6 different attack types (buffer overflow, memory corruption, privilege escalation, data exfiltration, firmware attacks, timing attacks)
+- **Cryptographic Certificate Validation** - Complete chain validation, expiration checking, signature verification, and revocation checking
+- **Biometric Authentication** - Support for fingerprint, iris, face, and voice recognition with proper matching algorithms
+- **Multi-Factor Authentication** - Key-based, certificate, and biometric authentication methods
+
+#### Comprehensive Certification Testing
+- **Link Training Validation** - 5-phase link establishment (physical layer, clock recovery, symbol lock, lane alignment, link training)
+- **Power Management Testing** - State transitions (U0-U3), consumption limits, power delivery, thermal management, and wake-up mechanisms
+- **Tunneling Validation** - PCIe, DisplayPort, and USB tunneling with bandwidth management and security validation
+- **Interoperability Testing** - Multi-vendor compatibility, protocol switching, and cross-platform validation
+- **Stress Testing** - Thermal, power, bandwidth, connection, and endurance stress testing
+
+#### Advanced Signal Processing
+- **Eye Diagram Analysis** - Proper eye diagram construction with FFT-based symbol rate estimation and noise filtering
+- **Flow Control Validation** - Comprehensive PCIe credit tracking with violation detection and efficiency monitoring
+- **TLP Processing** - Real PCIe TLP extraction with CRC validation and header verification
+
+### Previous Features in v1.3.0
 - 🚀 **PCIe 6.0 Complete Support:** Full 64 GT/s specification compliance with multi-lane validation
 - 🔄 **NRZ/PAM4 Dual-Mode:** Seamless mode switching with <10ms transition time
 - 🎯 **Advanced Link Training:** Multi-phase adaptive training (Phase 0-3) with convergence detection
@@ -89,6 +139,42 @@ compliance_results = sequence.run_compliance_test_suite(
 
 print(f"Training status: {training_results.convergence_status}")
 print(f"Compliance status: {compliance_results.test_status}")
+```
+
+### 🔌 USB4/Thunderbolt 4 Validation
+
+```python
+from serdes_validation_framework import (
+    create_validation_framework,
+    auto_validate_signal,
+    create_usb4_test_sequence
+)
+from serdes_validation_framework.protocols.usb4 import (
+    USB4SignalMode,
+    USB4TunnelingMode,
+    USB4LinkState
+)
+
+# Quick USB4 validation with automatic protocol detection
+results = auto_validate_signal(
+    signal_data=usb4_signal_data,  # Dual-lane signal data
+    sample_rate=200e9,
+    voltage_range=0.8,
+    protocol_hint="usb4"
+)
+
+print(f"Protocol detected: {results['protocol_type']}")
+print(f"Validation status: {results['validation_results'].overall_status.name}")
+
+# Advanced USB4 test sequence
+test_sequence = create_usb4_test_sequence(enable_thunderbolt=True)
+comprehensive_results = test_sequence.run_complete_sequence(usb4_signal_data)
+
+# Check tunneling validation
+for phase_result in comprehensive_results.phase_results:
+    if phase_result.phase.name == 'TUNNELING':
+        print(f"PCIe tunneling: {phase_result.metrics.get('pcie_tunnel_integrity', 'N/A')}")
+        print(f"DisplayPort tunneling: {phase_result.metrics.get('displayport_tunnel_quality', 'N/A')}")
 ```
 
 ### 🚀 PCIe 6.0 Validation
@@ -219,7 +305,7 @@ def capture_waveform(scope):
 pip install serdes-validation-framework
 
 # Install specific version
-pip install serdes-validation-framework==1.3.0
+pip install serdes-validation-framework==1.4.0
 ```
 
 #### Option 2: Install from Source
@@ -246,6 +332,57 @@ python -c "from serdes_validation_framework import __version__; print(f'SerDes F
 
 ### Basic Usage
 
+#### Quick Start with Automatic Validation
+```python
+from serdes_validation_framework import auto_validate_signal
+import numpy as np
+
+# Generate or load your signal data
+signal_data = {
+    0: {'voltage': np.random.randn(1000), 'time': np.linspace(0, 1e-6, 1000)},
+    1: {'voltage': np.random.randn(1000), 'time': np.linspace(0, 1e-6, 1000)}
+}
+
+# Automatic protocol detection and validation
+results = auto_validate_signal(
+    signal_data=signal_data,
+    sample_rate=200e9,
+    voltage_range=0.8,
+    protocol_hint="usb4"  # Optional hint
+)
+
+print(f"Detected Protocol: {results['protocol_type']}")
+print(f"Validation Status: {results['status']}")
+```
+
+#### Advanced Visualization
+```python
+from serdes_validation_framework.visualization import USB4Visualizer
+
+# Create visualizer
+viz = USB4Visualizer()
+
+# Generate professional eye diagram with measurements
+eye_result = viz.plot_eye_diagram(
+    signal_data,
+    show_measurements=True,
+    filename='usb4_eye_diagram.png'
+)
+
+# Create interactive dashboard
+dashboard_result = viz.create_interactive_dashboard(
+    test_results,
+    filename='usb4_dashboard.html'
+)
+
+# Analyze tunnel bandwidth
+bandwidth_result = viz.plot_tunnel_bandwidth(
+    bandwidth_data,
+    filename='tunnel_analysis.png'
+)
+```
+
+#### Traditional Test Sequencer
 ```python
 from serdes_validation_framework.test_sequence import PCIeTestSequencer
 from serdes_validation_framework.protocols.pcie import SignalMode
@@ -268,6 +405,47 @@ results = sequencer.run_sequence([
 
 print(f"Test completed: {results['status']}")
 ```
+
+## 📁 Examples & Scripts
+
+### 🎯 Interactive Examples
+Explore comprehensive examples with our interactive menu system:
+
+```bash
+# Launch interactive example browser
+python examples/example_index.py
+```
+
+**Available Examples:**
+- **USB4/Thunderbolt 4**: Complete validation suite with certification testing
+- **PCIe 6.0**: NRZ/PAM4 dual-mode validation with multi-lane support
+- **224G Ethernet**: High-speed Ethernet validation and analysis
+- **Multi-Protocol**: Cross-protocol comparison and unified validation
+- **Signal Analysis**: Advanced PAM4 analysis and jitter decomposition
+
+### 🚀 Production Scripts
+Ready-to-use validation scripts for production environments:
+
+```bash
+# Complete PCIe validation
+python scripts/pcie_validation.py --mode both --lanes 4 --benchmark
+
+# USB4/Thunderbolt 4 validation
+python scripts/usb4_validation.py --mode both --certification --benchmark
+
+# Multi-protocol validation
+python scripts/multi_protocol_validation.py --protocols all --compare
+
+# 224G Ethernet validation
+python scripts/eth_224g_validation.py --compliance --benchmark
+```
+
+**Script Features:**
+- **CLI Interfaces**: Full command-line argument support
+- **Mock Mode**: Development without hardware
+- **Benchmarking**: Performance measurement capabilities
+- **Reporting**: Multiple output formats (JSON, CSV, HTML)
+- **CI/CD Ready**: Automated testing integration
 
 ## 🛠️ Development
 
@@ -327,23 +505,27 @@ python examples/mock_testing_example.py
 - [🤝 Contributing Guide](docs/CONTRIBUTING.md)
 
 ### API Reference
+- [📚 Complete API Documentation](docs/api/index.md)
 - [🔌 Instrument Control](docs/api/instrument_control.md)
 - [🧪 Mock Testing](docs/api/mock_controller.md)
-- [🚀 PCIe 6.0 Validation](docs/api/pcie_validation.md)
+- [🚀 PCIe 6.0 Validation](docs/api/pcie.md)
+- [🔌 USB4/Thunderbolt 4 API](docs/api/usb4_thunderbolt.md)
 - [📡 224G Ethernet](docs/api/eth_224g.md)
 - [📊 PAM4 Analysis](docs/api/pam4_analysis.md)
-- [🎯 Link Training](docs/api/link_training.md)
-- [⚡ Equalization](docs/api/equalization.md)
+- [📈 Reporting System](docs/api/reporting.md)
 
 ### Guides & Tutorials
 - [🔧 Hardware Setup](docs/guides/instrument_setup.md)
 - [🏃 Mock Testing](docs/tutorials/mock_testing.md)
-- [🚀 PCIe 6.0 Quick Start](docs/tutorials/pcie_quickstart.md)
-- [🔄 NRZ/PAM4 Mode Switching](docs/tutorials/dual_mode.md)
-- [🎯 Link Training Guide](docs/tutorials/link_training.md)
+- [🚀 PCIe Validation](docs/tutorials/pcie_validation.md)
+- [🔌 USB4 Quick Start](docs/usb4/quickstart.md)
+- [🔒 Thunderbolt 4 Certification](docs/usb4/certification/thunderbolt4.md)
 - [📈 Signal Analysis](docs/tutorials/pam4_analysis.md)
-- [✅ Compliance Testing](docs/tutorials/compliance_testing.md)
-- [📊 Multi-lane Validation](docs/tutorials/multi_lane.md)
+- [📡 224G Ethernet Validation](docs/tutorials/224g_validation.md)
+- [🛠️ USB4 Best Practices](docs/usb4/guides/best-practices.md)
+- [🔧 Testing Strategies](docs/guides/testing.md)
+- [🚀 CI/CD Integration](docs/guides/cicd.md)
+- [🛠️ Troubleshooting](docs/guides/troubleshooting.md)
 
 ### Development Setup
 
@@ -472,14 +654,6 @@ We welcome contributions! See our [Contributing Guide](docs/CONTRIBUTING.md) for
 - Development Process
 - Submission Guidelines
 - Testing Requirements
-
-## Community and Support
-
-For any questions, issues, or contributions, please open an issue on the [GitHub repository](https://github.com/muditbhargava66/serdes-validation-framework/issues). Contributions and feedback are always welcome.
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
 

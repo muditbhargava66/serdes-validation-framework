@@ -117,4 +117,38 @@ dmypy.json
 *.sw?
 *.user
 
+# Package manager files
 uv.lock
+poetry.lock
+Pipfile.lock
+
+# Test and analysis output files
+test_reports/
+test_visualizations/
+integration_test_reports/
+integration_test_visualizations/
+usb4_reports/
+usb4_*.txt
+usb4_*.png
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.out
+
+# IDE specific files
+.vscode/settings.json
+.vscode/launch.json
+.idea/workspace.xml
+.idea/tasks.xml
+
+# Documentation build
+docs/_build/
+docs/build/
+site/

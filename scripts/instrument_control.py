@@ -1,8 +1,18 @@
 """
-Instrument Control Script
+Instrument Control Script v1.4.0
 
-This script demonstrates basic instrument control functionality with support
-for both real and mock hardware modes.
+This script demonstrates comprehensive instrument control functionality with support
+for both real and mock hardware modes across multiple SerDes protocols.
+
+Features:
+- Multi-protocol instrument support
+- PCIe 6.0, 224G Ethernet, and USB4/Thunderbolt 4 compatibility
+- Advanced mock mode for development
+- Comprehensive error handling
+- Performance monitoring
+
+Usage:
+    python scripts/instrument_control.py [--resource ADDR] [--verbose] [--mock]
 """
 
 import logging
