@@ -33,20 +33,12 @@ version = '1.4.0'
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.githubpages',
+    'myst_parser',
+    'sphinx_copybutton',
     'sphinxcontrib.mermaid',
-    'myst_parser',  # For Markdown support
-    'sphinx_rtd_theme',
-    'sphinx.ext.graphviz',
-    'sphinx_copybutton',  # Copy button for code blocks
 ]
 
 # Add any paths that contain templates here, relative to this directory.
