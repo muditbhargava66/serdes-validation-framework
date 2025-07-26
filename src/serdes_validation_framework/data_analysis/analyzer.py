@@ -7,6 +7,7 @@ import seaborn as sns
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class DataAnalyzer:
     def __init__(self, data):
         self.data = pd.DataFrame(data)
@@ -19,9 +20,9 @@ class DataAnalyzer:
         try:
             plt.figure(figsize=(10, 6))
             sns.histplot(self.data[column], bins=bins, kde=True)
-            plt.title(f'Histogram of {column}')
+            plt.title(f"Histogram of {column}")
             plt.xlabel(column)
-            plt.ylabel('Frequency')
+            plt.ylabel("Frequency")
             plt.show()
             logger.info(f"Histogram of {column} plotted")
         except Exception as e:
@@ -40,9 +41,10 @@ class DataAnalyzer:
             logger.error(f"Failed to compute statistics for {column}: {e}")
             raise
 
+
 if __name__ == "__main__":
-    sample_data = {'signal_strength': [0.1, 0.5, 0.3, 0.7, 0.2, 0.4, 0.8]}
+    sample_data = {"signal_strength": [0.1, 0.5, 0.3, 0.7, 0.2, 0.4, 0.8]}
     analyzer = DataAnalyzer(sample_data)
-    analyzer.plot_histogram('signal_strength')
-    stats = analyzer.compute_statistics('signal_strength')
+    analyzer.plot_histogram("signal_strength")
+    stats = analyzer.compute_statistics("signal_strength")
     print(stats)

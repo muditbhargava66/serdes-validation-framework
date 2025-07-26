@@ -440,7 +440,7 @@ class PCIeValidator:
             f.write("PCIe 6.0 Validation Report\n")
             f.write("=" * 50 + "\n")
             f.write(f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write("Framework Version: 1.3.0\n\n")
+            f.write("Framework Version: 1.4.0\n\n")
             
             # Write results
             for test_name, results in self.results.items():

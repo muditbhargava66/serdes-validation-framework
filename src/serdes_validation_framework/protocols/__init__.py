@@ -1,66 +1,48 @@
-# src/serdes_validation_framework/protocols/__init__.py
-
 """
-Protocol-specific modules for SerDes validation.
+Protocol Support Module
 
-This package contains protocol-specific implementations and specifications
-for various high-speed serial interfaces.
+This module provides protocol-specific validation capabilities.
 """
 
-from typing import Any, Dict, List
+# Import available protocols
+try:
+    from . import usb4
 
-# Protocol registry
-SUPPORTED_PROTOCOLS: Dict[str, Dict[str, Any]] = {
-    'ethernet_224g': {
-        'name': '224G Ethernet',
-        'version': '1.1.0',
-        'description': 'IEEE 802.3 224G Ethernet protocol specification',
-        'symbol_rate': 112e9,  # 112 GBaud
-        'modulation': 'PAM4',
-        'features': [
-            'Advanced equalization',
-            'Multi-algorithm adaptation',
-            'Performance analysis',
-            'Compliance testing'
-        ],
-        'supported_algorithms': [
-            'LMS (Least Mean Squares)',
-            'RLS (Recursive Least Squares)',
-            'CMA (Constant Modulus Algorithm)'
-        ]
-    }
-}
+    USB4_AVAILABLE = True
+except ImportError:
+    USB4_AVAILABLE = False
 
-def get_protocol_info(protocol_name: str) -> Dict[str, Any]:
-    """
-    Get information about a supported protocol
-    
-    Args:
-        protocol_name: Name of the protocol
-        
-    Returns:
-        Dictionary containing protocol information
-    """
-    assert isinstance(protocol_name, str), "Protocol name must be a string"
-    if protocol_name not in SUPPORTED_PROTOCOLS:
-        raise ValueError(f"Unsupported protocol: {protocol_name}")
-    return SUPPORTED_PROTOCOLS[protocol_name]
+try:
+    from . import pcie
 
-def list_supported_features(protocol_name: str) -> List[str]:
-    """
-    List supported features for a protocol
-    
-    Args:
-        protocol_name: Name of the protocol
-        
-    Returns:
-        List of supported features
-    """
-    protocol_info = get_protocol_info(protocol_name)
-    return protocol_info.get('features', [])
+    PCIE_AVAILABLE = True
+except ImportError:
+    PCIE_AVAILABLE = False
 
-__all__ = [
-    'SUPPORTED_PROTOCOLS',
-    'get_protocol_info',
-    'list_supported_features'
-]
+try:
+    from . import ethernet_224g
+
+    ETHERNET_AVAILABLE = True
+except ImportError:
+    ETHERNET_AVAILABLE = False
+
+__all__ = []
+
+if USB4_AVAILABLE:
+    __all__.append("usb4")
+if PCIE_AVAILABLE:
+    __all__.append("pcie")
+if ETHERNET_AVAILABLE:
+    __all__.append("ethernet_224g")
+
+# Create supported protocols dictionary
+SUPPORTED_PROTOCOLS = {}
+if USB4_AVAILABLE:
+    SUPPORTED_PROTOCOLS["USB4"] = {"module": usb4, "available": True}
+if PCIE_AVAILABLE:
+    SUPPORTED_PROTOCOLS["PCIE"] = {"module": pcie, "available": True}
+if ETHERNET_AVAILABLE:
+    SUPPORTED_PROTOCOLS["ETHERNET_224G"] = {"module": ethernet_224g, "available": True}
+
+# Add availability flags for testing
+__all__.extend(["USB4_AVAILABLE", "PCIE_AVAILABLE", "ETHERNET_AVAILABLE", "SUPPORTED_PROTOCOLS"])

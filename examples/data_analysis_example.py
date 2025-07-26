@@ -254,7 +254,7 @@ def demonstrate_plotting():
 
 def main():
     """Main function demonstrating various analysis capabilities"""
-    logger.info("SerDes Data Analysis Example - v1.3.0")
+    logger.info("SerDes Data Analysis Example - v1.4.0")
     logger.info("=" * 50)
     
     try:

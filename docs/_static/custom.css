@@ -1,0 +1,269 @@
+/* Custom CSS for SerDes Validation Framework Documentation */
+
+/* Main theme customizations */
+.wy-nav-side {
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+}
+
+.wy-side-nav-search {
+    background: #2c3e50;
+}
+
+.wy-side-nav-search input[type=text] {
+    border-radius: 4px;
+    border: 1px solid #34495e;
+}
+
+/* Content area improvements */
+.wy-nav-content {
+    max-width: 1200px;
+}
+
+/* Code block improvements */
+.highlight {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    margin: 1em 0;
+}
+
+.highlight pre {
+    padding: 1em;
+    overflow-x: auto;
+}
+
+/* Table improvements */
+table.docutils {
+    border-collapse: collapse;
+    margin: 1em 0;
+    width: 100%;
+}
+
+table.docutils th,
+table.docutils td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+table.docutils th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* Status indicators */
+.status-pass {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-fail {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.status-warning {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+/* Feature boxes */
+.feature-box {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 1em;
+    margin: 1em 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.feature-box h3 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+/* API documentation improvements */
+.py.class > dt {
+    background: #e8f4fd;
+    border-left: 3px solid #007bff;
+    padding: 0.5em;
+}
+
+.py.method > dt {
+    background: #f0f8f0;
+    border-left: 3px solid #28a745;
+    padding: 0.3em;
+}
+
+.py.function > dt {
+    background: #fff3cd;
+    border-left: 3px solid #ffc107;
+    padding: 0.3em;
+}
+
+/* Navigation improvements */
+.wy-menu-vertical li.current > a {
+    background: #2980b9;
+    border-right: 3px solid #3498db;
+}
+
+.wy-menu-vertical li.current a:hover {
+    background: #3498db;
+}
+
+/* Admonition styles */
+.admonition {
+    margin: 1em 0;
+    padding: 1em;
+    border-radius: 4px;
+    border-left: 4px solid;
+}
+
+.admonition.note {
+    background: #e7f3ff;
+    border-left-color: #007bff;
+}
+
+.admonition.warning {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+.admonition.danger {
+    background: #f8d7da;
+    border-left-color: #dc3545;
+}
+
+.admonition.tip {
+    background: #d4edda;
+    border-left-color: #28a745;
+}
+
+/* Code copy button styling */
+.copybtn {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.copybtn:hover {
+    opacity: 1;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .wy-nav-content {
+        margin-left: 0;
+    }
+    
+    .wy-nav-side {
+        left: -300px;
+    }
+    
+    .wy-nav-side.shift {
+        left: 0;
+    }
+}
+
+/* Print styles */
+@media print {
+    .wy-nav-side,
+    .wy-nav-top,
+    .rst-footer-buttons,
+    .copybtn {
+        display: none !important;
+    }
+    
+    .wy-nav-content {
+        margin-left: 0;
+    }
+}
+
+/* Custom elements for USB4 documentation */
+.usb4-spec {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1em;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+.thunderbolt-cert {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 1em;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+.mock-mode {
+    background: #e8f5e8;
+    border: 2px dashed #28a745;
+    padding: 1em;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+/* Performance metrics styling */
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1em;
+    margin: 1em 0;
+}
+
+.metric-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1em;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2em;
+    font-weight: bold;
+    color: #007bff;
+    display: block;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin-top: 0.5em;
+}
+
+/* Protocol badges */
+.protocol-badge {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin: 0.2em;
+}
+
+.protocol-usb4 {
+    background: #007bff;
+    color: white;
+}
+
+.protocol-thunderbolt {
+    background: #6f42c1;
+    color: white;
+}
+
+.protocol-pcie {
+    background: #28a745;
+    color: white;
+}
+
+.protocol-ethernet {
+    background: #fd7e14;
+    color: white;
+}
