@@ -26,7 +26,6 @@ python:
         - docs
         - dev  # Include development dependencies for mock support
     - requirements: docs/requirements.txt
-  system_packages: false
 
 # Build formats
 formats:
