@@ -1,252 +1,264 @@
-# SerDes Validation Framework API Documentation
+# API Reference
 
-## Overview
+This section provides comprehensive API documentation for the SerDes Validation Framework.
 
-The SerDes Validation Framework provides comprehensive tools for validating high-speed serial interfaces. This documentation covers the core APIs, type safety requirements, and integration patterns.
+## Core APIs
 
-## Core Components
+### Protocol Support
+- [USB4/Thunderbolt 4 API](../usb4/api-reference.md) - Complete USB4 and Thunderbolt 4 validation
+- [PCIe API](pcie.md) - PCIe signal analysis and compliance testing
+- [224G Ethernet API](eth_224g.md) - High-speed Ethernet PHY validation
+- [PAM4 Analysis API](pam4_analysis.md) - PAM4 signal analysis tools
 
-### Instrument Control
+### Analysis & Testing
+- [Signal Analysis](../usb4/api-reference.md#signal-analysis) - Eye diagrams, jitter analysis, and signal integrity
+- [Compliance Testing](../usb4/api-reference.md#compliance-testing) - Automated compliance test execution
+- [Performance Testing](../usb4/api-reference.md#performance-testing) - Benchmarking and performance analysis
 
-Core functionality for controlling test equipment:
+### Reporting & Visualization
+- [Reporting API](reporting.md) - Test reporting and documentation generation
+- [🎨 Visualization API](visualization.md) - Comprehensive visualization system
+  - Advanced eye diagram analysis with automatic measurements
+  - Interactive dashboards using Plotly
+  - Protocol-specific visualizations (USB4, PCIe, Ethernet)
+  - Multi-protocol comparison tools
 
-- [Mock Controller](mock_controller.md)
-  - Environment-controlled mock/real hardware switching
-  - Type-safe mock response configuration
-  - Error simulation capabilities
-  - Custom response handlers
+### Infrastructure
+- [Instrument Control API](instrument_control.md) - Hardware instrument integration
+- [Mock Controller API](mock_controller.md) - Advanced mock testing framework with 91+ tests
+- [Testing Framework](../guides/testing.md) - Comprehensive testing infrastructure
+- [Configuration](../reference/configuration.md) - Framework configuration management
 
-- [Instrument Control](instrument_control.md)
-  - Base instrument control interfaces
-  - GPIB/USB communication
-  - Command validation
-  - Error handling
+## Quick Reference
 
-### Signal Analysis
+### Common Classes
 
-Signal processing and analysis tools:
-
-- [PAM4 Analysis](pam4_analysis.md)
-  - Level separation analysis
-  - Error Vector Magnitude (EVM) calculation
-  - Eye diagram measurements
-  - Type-safe signal processing
-
-- [224G Ethernet](eth_224g.md)
-  - Protocol-specific measurements
-  - Compliance testing
-  - Link training
-  - Performance validation
-
-- [PCIe 6.0](pcie.md) **NEW**
-  - Complete PCIe 6.0 specification support
-  - NRZ/PAM4 dual-mode capabilities
-  - Advanced link training and equalization
-  - Comprehensive compliance testing
-  - Multi-lane analysis with skew detection
-
-## Type Safety
-
-All APIs enforce strict type checking:
-
+#### USB4 Validation
 ```python
-from typing import Dict, List, Optional, Union
-import numpy as np
-import numpy.typing as npt
-
-# Type aliases
-FloatArray = npt.NDArray[np.float64]
-SignalData = Dict[str, FloatArray]
-Measurements = Dict[str, Union[float, List[float]]]
-
-def validate_numeric_data(
-    data: FloatArray,
-    name: str = "data"
-) -> None:
-    """
-    Validate numeric array properties
-    
-    Args:
-        data: Numeric data array
-        name: Array name for error messages
-        
-    Raises:
-        AssertionError: If validation fails
-    """
-    # Type validation
-    assert isinstance(data, np.ndarray), \
-        f"{name} must be numpy array, got {type(data)}"
-    
-    # Data type validation
-    assert np.issubdtype(data.dtype, np.floating), \
-        f"{name} must be floating-point, got {data.dtype}"
-    
-    # Value validation
-    assert len(data) > 0, f"{name} cannot be empty"
-    assert not np.any(np.isnan(data)), f"{name} contains NaN values"
-    assert not np.any(np.isinf(data)), f"{name} contains infinite values"
+from serdes_validation_framework.protocols.usb4 import (
+    USB4Validator,
+    USB4SignalAnalyzer,
+    USB4ComplianceValidator
+)
 ```
 
-## Mock Testing Support
-
-The framework provides comprehensive mock testing capabilities:
-
+#### Thunderbolt 4 Certification
 ```python
-from serdes_validation_framework.instrument_control.mock_controller import (
-    get_instrument_controller,
-    get_instrument_mode
+from serdes_validation_framework.protocols.usb4.thunderbolt import (
+    ThunderboltSecurityValidator,
+    DaisyChainValidator,
+    IntelCertificationSuite
+)
+```
+
+#### Visualization
+```python
+from serdes_validation_framework.visualization import (
+    USB4Visualizer,
+    PCIeVisualizer,
+    EthernetVisualizer,
+    EyeDiagramVisualizer,
+    ProtocolComparison
+)
+```
+
+#### Reporting
+```python
+from serdes_validation_framework.reporting import (
+    USB4TestReporter,
+    ReportTemplate,
+    TestSession
+)
+```
+
+#### Visualization
+```python
+from serdes_validation_framework.visualization import (
+    USB4Visualizer,
+    PlotConfiguration,
+    PlotType
+)
+```
+
+### Common Enums and Constants
+
+#### USB4 Signal Modes
+```python
+from serdes_validation_framework.protocols.usb4.constants import (
+    USB4SignalMode,
+    USB4LinkState,
+    USB4TunnelingMode
+)
+```
+
+#### Report Types
+```python
+from serdes_validation_framework.reporting import (
+    ReportType,
+    ReportFormat
+)
+```
+
+## API Categories
+
+### 🔌 Protocol APIs
+APIs for specific protocol validation and testing.
+
+| Protocol | Status | Key Features |
+|----------|--------|--------------|
+| USB4 2.0 | ✅ Complete | Dual-lane analysis, tunneling, power management |
+| Thunderbolt 4 | ✅ Complete | Security, daisy-chain, certification |
+| PCIe 6.0 | ✅ Complete | NRZ/PAM4, link training, compliance |
+| 224G Ethernet | ✅ Complete | PAM4 analysis, equalization |
+
+### 📊 Analysis APIs
+APIs for signal analysis and measurement.
+
+- **Eye Diagram Analysis**: Comprehensive eye pattern analysis with compliance masks
+- **Jitter Analysis**: Advanced jitter decomposition (RJ, DJ, PJ)
+- **Signal Integrity**: Real-time signal quality assessment
+- **Lane Skew Analysis**: Multi-lane skew measurement and compensation
+
+### 🧪 Testing APIs
+APIs for automated testing and validation.
+
+- **Compliance Testing**: Automated compliance test execution
+- **Performance Testing**: Benchmarking and performance analysis
+- **Multi-Protocol Integration**: Cross-protocol validation testing
+- **Mock Testing**: Advanced mock implementations with intelligent protocol detection
+- **Stress Testing**: Long-duration and thermal stress testing
+- **Regression Testing**: Performance regression analysis with 91+ core tests
+
+### 📈 Reporting APIs
+APIs for generating reports and documentation.
+
+- **Test Reports**: HTML, PDF, JSON, and XML report generation
+- **Trend Analysis**: Performance trend monitoring and analysis
+- **Certification Reports**: Thunderbolt 4 certification documentation
+- **Custom Templates**: Customizable report templates
+
+### 🎨 Visualization APIs
+APIs for real-time monitoring and plotting.
+
+- **Eye Diagrams**: Interactive eye diagram plotting
+- **Signal Plots**: Dual-lane signal visualization
+- **Dashboards**: Real-time monitoring dashboards
+- **Trend Charts**: Performance trend visualization
+
+### 🔧 Infrastructure APIs
+APIs for framework infrastructure and utilities.
+
+- **Instrument Control**: Hardware instrument integration
+- **Mock Testing**: Comprehensive mock testing framework with 91+ core tests
+- **Protocol Detection**: Intelligent protocol detection from signal characteristics
+- **Test Organization**: Core, integration, and performance test categories
+- **Configuration**: Framework configuration management with conditional imports
+- **Utilities**: Helper functions and common utilities
+
+## Usage Patterns
+
+### Basic Validation Workflow
+```python
+# 1. Initialize validator
+validator = USB4Validator()
+
+# 2. Load or generate signal data
+signal_data = validator.load_signal_data("capture.csv")
+
+# 3. Run validation
+results = validator.validate_compliance(signal_data)
+
+# 4. Generate report
+reporter = USB4TestReporter()
+report_path = reporter.generate_compliance_report(session_id)
+```
+
+### Mock Mode Development
+```python
+import os
+
+# Enable mock mode
+os.environ['SVF_MOCK_MODE'] = '1'
+
+# All APIs now use mock implementations
+validator = USB4Validator()
+mock_data = validator.generate_mock_signal_data()
+results = validator.validate_compliance(mock_data)
+```
+
+### Custom Report Generation
+```python
+# Create custom template
+template = ReportTemplate(
+    name="Custom Report",
+    format=ReportFormat.HTML,
+    sections=['summary', 'results', 'recommendations']
 )
 
-# Control mock mode via environment
-os.environ['SVF_MOCK_MODE'] = '1'  # Force mock mode
-os.environ['SVF_MOCK_MODE'] = '0'  # Force real mode
-# Auto-detect mode (default)
-unset SVF_MOCK_MODE
-
-# Initialize controller
-controller = get_instrument_controller()
-print(f"Operating in {controller.get_mode()} mode")
+# Generate report
+reporter = USB4TestReporter()
+report = reporter.generate_compliance_report(
+    session_id="test_001",
+    custom_template=template
+)
 ```
 
 ## Error Handling
 
-Standardized error hierarchy:
-
+### Common Exceptions
 ```python
-class ValidationError(Exception):
-    """Base class for validation errors"""
-    pass
-
-class InstrumentError(Exception):
-    """Base class for instrument errors"""
-    pass
-
-class AnalysisError(Exception):
-    """Base class for analysis errors"""
-    pass
-```
-
-## Data Classes
-
-Type-safe data containers:
-
-```python
-from dataclasses import dataclass
-from typing import List
-
-@dataclass
-class MeasurementResults:
-    """Type-safe measurement results"""
-    timestamp: float
-    values: List[float]
-    metadata: Dict[str, Union[str, float]]
-    
-    def __post_init__(self) -> None:
-        """Validate measurement data"""
-        assert isinstance(self.timestamp, float), \
-            "Timestamp must be float"
-        assert all(isinstance(x, float) for x in self.values), \
-            "Values must be floats"
-```
-
-## Module Organization
-
-```
-serdes_validation_framework/
-├── instrument_control/
-│   ├── controller.py        # Base controller
-│   ├── mock_controller.py   # Mock testing support
-│   └── scope_224g.py       # High-bandwidth scope
-├── data_analysis/
-│   ├── analyzer.py         # Base analyzer
-│   └── pam4_analyzer.py    # PAM4 signal analysis
-├── protocols/
-│   └── ethernet_224g/      # 224G protocol support
-└── test_sequence/          # Test automation
-```
-
-## Quick Start
-
-### Basic Usage
-
-```python
-from serdes_validation_framework.instrument_control import get_instrument_controller
-from serdes_validation_framework.data_analysis import PAM4Analyzer
-
-# Initialize controller
-controller = get_instrument_controller()
-
-# Connect to instrument
-controller.connect_instrument('GPIB::1::INSTR')
-
-# Collect data
-response = controller.query_instrument(
-    'GPIB::1::INSTR',
-    ':WAVeform:DATA?'
+from serdes_validation_framework.exceptions import (
+    USB4ValidationError,
+    SignalAnalysisError,
+    ComplianceTestError,
+    InstrumentError
 )
 
-# Analyze results
-analyzer = PAM4Analyzer({
-    'voltage': np.array(response.split(','), dtype=np.float64)
-})
-results = analyzer.analyze_level_separation()
+try:
+    results = validator.validate_compliance(signal_data)
+except USB4ValidationError as e:
+    print(f"USB4 validation error: {e}")
+except SignalAnalysisError as e:
+    print(f"Signal analysis error: {e}")
 ```
 
-### Mock Testing
+### Best Practices
+- Always use try-catch blocks for validation operations
+- Check mock mode status when debugging
+- Validate input parameters before processing
+- Use context managers for resource management
 
-```python
-# Force mock mode
-os.environ['SVF_MOCK_MODE'] = '1'
+## Performance Considerations
 
-# Configure mock responses
-controller = get_instrument_controller()
-controller.add_mock_response(
-    'TEST:MEASURE?',
-    lambda: f"{np.random.normal(0, 0.1):.6f}",
-    delay=0.1
-)
+### Optimization Tips
+- Use mock mode for development and CI/CD
+- Cache signal data for repeated analysis
+- Use appropriate sample rates for your analysis needs
+- Enable parallel processing for large datasets
 
-# Use controller normally
-response = controller.query_instrument('GPIB::1::INSTR', 'TEST:MEASURE?')
-```
+### Memory Management
+- Process large datasets in chunks
+- Clean up resources after use
+- Monitor memory usage during long-running tests
+- Use generators for streaming data processing
 
-## Best Practices
+## Version Compatibility
 
-1. Always validate numeric types:
-   ```python
-   assert isinstance(value, float), f"Expected float, got {type(value)}"
-   ```
+### API Stability
+- **Stable APIs**: Core validation and reporting APIs
+- **Beta APIs**: Advanced visualization features
+- **Experimental APIs**: New protocol support
 
-2. Use type hints:
-   ```python
-   def calculate_snr(signal: FloatArray, noise: FloatArray) -> float:
-   ```
+### Deprecation Policy
+- Deprecated features are marked in documentation
+- Minimum 2 release cycles before removal
+- Migration guides provided for breaking changes
 
-3. Handle cleanup properly:
-   ```python
-   try:
-       controller.connect_instrument(resource_name)
-       # ... perform operations
-   finally:
-       controller.disconnect_instrument(resource_name)
-   ```
+## Support and Resources
 
-4. Use logging for debugging:
-   ```python
-   logger.debug(f"Measurement result: {value:.6f}")
-   ```
+- **GitHub Issues**: Report bugs and request features
+- **Discussions**: Community support and questions
+- **Examples**: Comprehensive usage examples
+- **Tutorials**: Step-by-step guides
 
-## Examples
-
-Complete examples are available in the tutorials:
-
-- [Getting Started](../tutorials/getting_started.md)
-- [Mock Testing Guide](../tutorials/mock_testing.md)
-- [224G Validation](../tutorials/224g_validation.md)
-- [PAM4 Analysis](../tutorials/pam4_analysis.md)
-
-## See Also
-
-- [Installation Guide](../INSTALL.md)
-- [Usage Guide](../USAGE.md)
-- [Contributing Guide](../CONTRIBUTING.md)
+For detailed information on each API, click on the links above or use the navigation menu.

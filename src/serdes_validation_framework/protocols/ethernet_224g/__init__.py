@@ -29,54 +29,51 @@ from .training import (
     EqualizerState,
 )
 
-__version__ = '1.1.0'  # Version bumped for enhanced equalization
+__version__ = "1.4.0"
 
 __all__ = [
     # Constants
-    'PAM4Specs',
-    'JitterSpecs',
-    'EyeSpecs',
-    'TrainingSpecs',
-    'ETHERNET_224G_SPECS',
-    'TRAINING_PATTERNS',
-    'COMPLIANCE_PATTERNS',
-    'validate_pam4_levels',
-    'calculate_ui_parameters',
-
+    "PAM4Specs",
+    "JitterSpecs",
+    "EyeSpecs",
+    "TrainingSpecs",
+    "ETHERNET_224G_SPECS",
+    "TRAINING_PATTERNS",
+    "COMPLIANCE_PATTERNS",
+    "validate_pam4_levels",
+    "calculate_ui_parameters",
     # Compliance
-    'ComplianceTestConfig',
-    'ComplianceLimit',
-    'ComplianceSpecification',
-
+    "ComplianceTestConfig",
+    "ComplianceLimit",
+    "ComplianceSpecification",
     # Training and Equalization
-    'TrainingConfig',
-    'TrainingStatus',
-    'LinkTraining',
-    'EqualizerConfig',
-    'EqualizerState',
-    'EnhancedEqualizer',
-
+    "TrainingConfig",
+    "TrainingStatus",
+    "LinkTraining",
+    "EqualizerConfig",
+    "EqualizerState",
+    "EnhancedEqualizer",
     # Version
-    '__version__'
+    "__version__",
 ]
 
 # Protocol metadata
 PROTOCOL_INFO = {
-    'name': '224G Ethernet',
-    'standard': 'IEEE 802.3',
-    'version': __version__,
-    'specs': ETHERNET_224G_SPECS,
-    'supported_features': [
-        'PAM4 modulation',
-        'Link training',
-        'Compliance testing',
-        'Eye diagram analysis',
-        'Jitter measurements',
+    "name": "224G Ethernet",
+    "standard": "IEEE 802.3",
+    "version": __version__,
+    "specs": ETHERNET_224G_SPECS,
+    "supported_features": [
+        "PAM4 modulation",
+        "Link training",
+        "Compliance testing",
+        "Eye diagram analysis",
+        "Jitter measurements",
         # New features
-        'Advanced equalization algorithms',
-        'LMS adaptation',
-        'RLS adaptation',
-        'CMA adaptation',
-        'Performance analysis'
-    ]
+        "Advanced equalization algorithms",
+        "LMS adaptation",
+        "RLS adaptation",
+        "CMA adaptation",
+        "Performance analysis",
+    ],
 }

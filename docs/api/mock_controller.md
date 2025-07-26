@@ -2,15 +2,18 @@
 
 ## Overview
 
-The mock controller provides comprehensive simulation capabilities for instrument control during development and testing, eliminating the need for physical hardware. It ensures type safety through strict validation and offers configurable behavior via environment variables.
+The mock controller provides comprehensive simulation capabilities for instrument control during development and testing, eliminating the need for physical hardware. It ensures type safety through strict validation and offers configurable behavior via environment variables. The framework includes 91+ core tests with advanced mock implementations and intelligent protocol detection.
 
 ## Features
 
 - Environment variable-based mode control
-- Type-safe mock data generation
+- Type-safe mock data generation with 91+ core tests
+- Intelligent protocol detection from signal characteristics
+- Multi-protocol integration testing (USB4, PCIe, Ethernet)
 - Configurable error simulation
 - Custom response configuration
 - Runtime hardware detection
+- Advanced signal generation for realistic testing
 
 ## Installation
 

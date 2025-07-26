@@ -13,13 +13,14 @@ from ..instrument_control.mock_controller import get_instrument_controller
 
 logger = logging.getLogger(__name__)
 
+
 class PCIeTestSequencer:
     """Test sequence execution controller"""
 
     def __init__(self, controller: Optional[Any] = None) -> None:
         """
         Initialize test sequencer
-        
+
         Args:
             controller: Optional instrument controller (uses auto-detection if None)
         """
@@ -31,10 +32,10 @@ class PCIeTestSequencer:
     def setup_instruments(self, resource_names: List[str]) -> None:
         """
         Set up instruments for test sequence
-        
+
         Args:
             resource_names: List of VISA resource identifiers
-        
+
         Raises:
             ValueError: If resource names are invalid
         """
@@ -60,16 +61,16 @@ class PCIeTestSequencer:
     def run_sequence(self, sequence: List[Dict[str, str]]) -> Dict[str, str]:
         """
         Execute test sequence
-        
+
         Args:
             sequence: List of command dictionaries with keys:
                      - resource: Instrument identifier
                      - command: SCPI command
                      - action: 'send' or 'query'
-        
+
         Returns:
             Dictionary mapping resources to responses
-            
+
         Raises:
             ValueError: If sequence is invalid
         """
@@ -82,17 +83,17 @@ class PCIeTestSequencer:
             # Execute sequence
             for step in sequence:
                 # Validate step
-                if not all(k in step for k in ['resource', 'command', 'action']):
+                if not all(k in step for k in ["resource", "command", "action"]):
                     raise ValueError(f"Invalid sequence step: {step}")
 
-                resource = step['resource']
-                command = step['command']
-                action = step['action']
+                resource = step["resource"]
+                command = step["command"]
+                action = step["action"]
 
                 # Execute step
-                if action == 'send':
+                if action == "send":
                     self.instrument_controller.send_command(resource, command)
-                elif action == 'query':
+                elif action == "query":
                     response = self.instrument_controller.query_instrument(resource, command)
                     results[resource] = response
                 else:
@@ -104,20 +105,15 @@ class PCIeTestSequencer:
             logger.error(f"Failed to run sequence: {e}")
             raise
 
-    def collect_and_analyze_data(
-        self,
-        resource: str,
-        command: str,
-        data_type: str
-    ) -> Dict[str, float]:
+    def collect_and_analyze_data(self, resource: str, command: str, data_type: str) -> Dict[str, float]:
         """
         Collect and analyze measurement data
-        
+
         Args:
             resource: Instrument identifier
             command: Measurement command
             data_type: Type of data being measured
-            
+
         Returns:
             Dictionary of analysis results
         """
@@ -144,7 +140,7 @@ class PCIeTestSequencer:
     def cleanup(self, resource_names: List[str]) -> None:
         """
         Clean up instrument connections
-        
+
         Args:
             resource_names: List of instrument identifiers
         """

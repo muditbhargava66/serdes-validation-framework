@@ -3,7 +3,17 @@
 Data Analysis Script
 
 This script provides comprehensive data analysis capabilities for SerDes validation
-including signal processing, statistical analysis, and visualization.
+including signal processing, statistical analysis, and visualization for PCIe 6.0,
+224G Ethernet, and USB4/Thunderbolt 4 protocols.
+
+Features:
+- Multi-protocol signal analysis
+- Advanced statistical processing
+- Eye diagram analysis
+- Jitter decomposition
+- PAM4 and NRZ signal processing
+- USB4 dual-lane analysis
+- Comprehensive visualization
 
 Usage:
     python scripts/data_analysis.py [--input FILE] [--output DIR] [--verbose]
@@ -281,7 +291,7 @@ def main():
     
     # Setup logging
     logger = setup_logging(args.verbose)
-    logger.info("SerDes Data Analysis Script - v1.3.0")
+    logger.info("SerDes Data Analysis Script - v1.4.0")
     
     try:
         # Load or generate data

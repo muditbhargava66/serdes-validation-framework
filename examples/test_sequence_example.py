@@ -321,7 +321,7 @@ def demonstrate_performance_monitoring():
 
 def main():
     """Main function demonstrating various test sequence capabilities"""
-    logger.info("SerDes Test Sequence Example - v1.3.0")
+    logger.info("SerDes Test Sequence Example - v1.4.0")
     logger.info("=" * 50)
     
     results = {
