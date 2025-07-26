@@ -507,5 +507,5 @@ tail -f pcie_validation.log
 
 - [PCIe API Reference](../api/pcie.md)
 - [PCIe Tutorial](../tutorials/pcie_validation.md)
-- [Scripts Documentation](../../scripts/README.md)
-- [Examples Documentation](../../examples/README.md)
+- Scripts Documentation
+- Examples Documentation

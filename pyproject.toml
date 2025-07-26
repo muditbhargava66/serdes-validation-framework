@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "serdes-validation-framework"
-version = "1.3.0"
-description = "A comprehensive framework for validating high-speed SerDes protocols with PCIe 6.0 support and NRZ/PAM4 dual-mode capabilities."
+version = "1.4.0"
+description = "A comprehensive framework for validating high-speed SerDes protocols with PCIe 6.0, 224G Ethernet, and USB4/Thunderbolt 4 support."
 authors = [
     {name = "Mudit Bhargava", email = "muditbhargava666@gmail.com"}
 ]
@@ -16,6 +16,9 @@ keywords = [
     "SerDes",
     "PCIe",
     "PCIe-6.0",
+    "USB4",
+    "Thunderbolt-4",
+    "224G-Ethernet",
     "NRZ",
     "PAM4",
     "high-speed",
@@ -24,6 +27,8 @@ keywords = [
     "link-training",
     "equalization",
     "eye-diagram",
+    "tunneling",
+    "multi-protocol",
     "data-collection",
     "data-analysis",
     "instrument-control",
@@ -51,13 +56,15 @@ dependencies = [
     "pandas>=2.2.3",
     "matplotlib>=3.9.0",
     "seaborn>=0.13.0",
+    "plotly>=5.17.0",
     "scikit-learn>=1.4.0",
     "pyvisa>=1.13.0",
     "pyvisa-py>=0.5.1",
     "pyusb>=1.2.1",
     "python-usbtmc>=0.8",
     "gpib-ctypes @ git+https://github.com/tivek/gpib_ctypes",
-    "zeroconf>=0.131.0"
+    "zeroconf>=0.131.0",
+    "psutil>=5.9.0"
 ]
 
 [project.urls]
@@ -85,7 +92,8 @@ docs = [
   "sphinx-markdown-tables",
   "sphinx-design",
   "sphinx-copybutton",
-  "sphinx-autobuild"
+  "sphinx-autobuild",
+  "sphinxcontrib-mermaid"
 ]
 
 [tool.setuptools]
@@ -137,7 +145,23 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-ignore = ["W293", "W291", "F841", "N803", "N806", "B904", "B017", "C901"]
+ignore = [
+    "W293",   # blank line contains whitespace
+    "W291",   # trailing whitespace
+    "F841",   # local variable assigned but never used
+    "N803",   # argument name should be lowercase
+    "N806",   # variable in function should be lowercase
+    "B904",   # raise without from inside except
+    "B017",   # pytest.raises without match
+    "C901",   # function is too complex
+    "F401",   # imported but unused (common in __init__.py files)
+    "E501",   # line too long (handled by black)
+    "E722",   # bare except (sometimes necessary for broad exception handling)
+    "B006",   # mutable default argument (sometimes intentional)
+    "E402",   # module level import not at top (sometimes necessary)
+    "F811",   # redefinition of unused variable (common in configuration files)
+    "B905",   # zip() without explicit strict parameter (Python 3.9 compatibility)
+]
 # Extend select rules
 select = [
     "E",    # pycodestyle errors

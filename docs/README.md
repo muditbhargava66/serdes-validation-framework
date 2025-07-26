@@ -35,16 +35,19 @@ docs/
 │   ├── 224g_validation.md    # 224G validation guide
 │   └── pam4_analysis.md      # PAM4 analysis guide
 ├── guides/                    # User guides
-│   ├── instrument_setup.md   # Hardware setup guide
-│   ├── testing.md   # Testing guide
-│   ├── troubleshooting.md    # Troubleshooting guide
-│   └── environment_vars.md   # Environment config guide
+│   ├── installation.md      # Installation guide
+│   ├── testing.md          # Comprehensive testing guide (91+ tests)
+│   ├── troubleshooting.md   # Troubleshooting guide
+│   └── cicd.md             # CI/CD integration guide
 ├── examples/                  # Code examples
 │   ├── mock_controller_examples.md
-│   └── testing_examples.md
-├── CONTRIBUTING.md           # Contribution guide
-├── INSTALL.md               # Installation guide
-└── USAGE.md                 # Usage guide
+│   ├── testing_examples.md
+│   ├── protocol_detection_examples.md
+│   └── integration_testing_examples.md
+├── CHANGELOG.md             # Detailed changelog with v1.4.0 improvements
+├── CONTRIBUTING.md          # Contribution guide
+├── INSTALL.md              # Installation guide
+└── USAGE.md                # Usage guide
 ```
 
 ## Documentation Standards

@@ -1,0 +1,237 @@
+{
+  "description": "Comprehensive security test configuration for USB4/Thunderbolt 4 devices",
+  "version": "1.4.0",
+  "security_configuration": {
+    "test_duration": 120.0,
+    "dma_protection_enabled": true,
+    "authentication_required": true,
+    "security_level": "SL1",
+    "test_attack_simulation": true,
+    "test_certificate_validation": true,
+    "test_biometric_auth": true,
+    "enable_advanced_attacks": true
+  },
+  "device_info": {
+    "device_id": "secure_tb4_device_001",
+    "vendor_id": "8086",
+    "product_id": "SEC1",
+    "device_type": "hub",
+    "firmware_version": "2.1.0",
+    "security_level": "SL1",
+    "supported_protocols": ["USB4_v2.0", "TB4", "USB3.2", "TB3"],
+    "max_power_consumption": 25.0,
+    "max_power_delivery": 100.0,
+    "max_operating_temperature": 85.0,
+    "power_requirement": 15.0,
+    "certification_level": "TB4_FULL"
+  },
+  "authentication_config": {
+    "key_based_auth": {
+      "enabled": true,
+      "device_key": "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "expected_key": "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+      "challenge": "FEDCBA9876543210FEDCBA9876543210FEDCBA9876543210FEDCBA9876543210",
+      "key_length": 256,
+      "hash_algorithm": "SHA256",
+      "challenge_response_timeout": 5.0
+    },
+    "certificate_auth": {
+      "enabled": true,
+      "certificate": "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKoK/heBjcOuMA0GCSqGSIb3DQEBBQUAMBQxEjAQBgNVBAMMCVRo\ndW5kZXJib2x0MB4XDTIzMDEwMTAwMDAwMFoXDTI0MDEwMTAwMDAwMFowFDESMBAG\nA1UEAwwJVGh1bmRlcmJvbHQwXDANBgkqhkiG9w0BAQEFAANLADBIAkEAuGaP/fcj\nSubject: CN=Thunderbolt Device\nIssuer: CN=Thunderbolt CA\nSerial Number: 789012\nNot Before: 2023-01-01T00:00:00Z\nNot After: 2024-12-31T23:59:59Z\n-----END CERTIFICATE-----",
+      "trusted_cas": [
+        "CN=Thunderbolt CA",
+        "CN=Intel Thunderbolt CA",
+        "CN=USB-IF CA",
+        "CN=Device Certification Authority"
+      ],
+      "check_revocation": true,
+      "validate_chain": true,
+      "certificate_timeout": 10.0
+    },
+    "biometric_auth": {
+      "enabled": true,
+      "biometric_type": "fingerprint",
+      "biometric_data": "ZmluZ2VycHJpbnRfZGF0YV9iYXNlNjRfZW5jb2RlZF9jb21wcmVoZW5zaXZlX21pbnV0aWFlX2RhdGFfZm9yX3Rlc3RpbmdfcHVycG9zZXNfb25seV9ub3RfcmVhbF9iaW9tZXRyaWNfZGF0YQ==",
+      "reference_template": "cmVmZXJlbmNlX2ZpbmdlcnByaW50X3RlbXBsYXRlX2Jhc2U2NF9lbmNvZGVkX2NvbXByZWhlbnNpdmVfZGF0YV9mb3JfdGVzdGluZ19wdXJwb3Nlc19vbmx5",
+      "matching_threshold": 0.75,
+      "max_attempts": 3,
+      "biometric_timeout": 15.0,
+      "supported_types": ["fingerprint", "iris", "face", "voice"]
+    }
+  },
+  "dma_protection_config": {
+    "enabled": true,
+    "protection_level": "strict",
+    "allowed_memory_regions": [
+      {
+        "start_address": "0x00100000",
+        "end_address": "0x7FFFFFFF",
+        "permissions": ["read", "write"],
+        "description": "User space memory"
+      }
+    ],
+    "blocked_memory_regions": [
+      {
+        "start_address": "0x00000000",
+        "end_address": "0x000FFFFF",
+        "description": "System reserved memory"
+      },
+      {
+        "start_address": "0x80000000",
+        "end_address": "0xFFFFFFFF",
+        "description": "Kernel space memory"
+      }
+    ],
+    "attack_simulation": {
+      "buffer_overflow": {
+        "enabled": true,
+        "test_payloads": [1024, 2048, 4096, 8192, 16384],
+        "buffer_sizes": [512, 1024, 2048, 4096],
+        "expected_blocked": true
+      },
+      "memory_corruption": {
+        "enabled": true,
+        "target_addresses": ["0x00000000", "0xFFFF0000", "0x80000000"],
+        "corruption_patterns": ["sequential", "random", "pattern"],
+        "expected_blocked": true
+      },
+      "privilege_escalation": {
+        "enabled": true,
+        "target_structures": ["process_table", "security_tokens", "privilege_bits"],
+        "escalation_methods": ["direct_write", "indirect_access", "timing_attack"],
+        "expected_blocked": true
+      },
+      "data_exfiltration": {
+        "enabled": true,
+        "target_data": ["password_cache", "encryption_keys", "user_data"],
+        "exfiltration_methods": ["direct_read", "side_channel", "covert_channel"],
+        "expected_blocked": true
+      },
+      "firmware_attack": {
+        "enabled": true,
+        "target_regions": ["boot_loader", "device_driver", "security_module"],
+        "attack_vectors": ["direct_write", "update_hijack", "rollback_attack"],
+        "expected_blocked": true
+      },
+      "timing_attack": {
+        "enabled": true,
+        "timing_patterns": ["constant_time", "variable_time", "side_channel"],
+        "measurement_precision": 0.001,
+        "expected_blocked": true
+      }
+    }
+  },
+  "security_policies": {
+    "device_approval": {
+      "require_user_approval": true,
+      "auto_approve_known_devices": false,
+      "approval_timeout": 30.0,
+      "max_approval_attempts": 3
+    },
+    "legacy_device_support": {
+      "allow_legacy_devices": false,
+      "legacy_security_level": "SL0",
+      "require_legacy_approval": true
+    },
+    "display_auto_approve": {
+      "auto_approve_displays": true,
+      "require_display_authentication": false,
+      "display_timeout": 10.0
+    },
+    "dma_protection": {
+      "enforce_dma_protection": true,
+      "allow_dma_bypass": false,
+      "dma_timeout": 5.0
+    }
+  },
+  "test_scenarios": [
+    {
+      "name": "basic_authentication",
+      "description": "Test basic authentication methods",
+      "enabled": true,
+      "duration": 30.0,
+      "tests": ["key_based", "certificate", "biometric"],
+      "success_criteria": {
+        "min_success_rate": 0.95,
+        "max_response_time": 5.0
+      }
+    },
+    {
+      "name": "dma_attack_simulation",
+      "description": "Simulate various DMA attacks",
+      "enabled": true,
+      "duration": 60.0,
+      "tests": ["buffer_overflow", "memory_corruption", "privilege_escalation", "data_exfiltration"],
+      "success_criteria": {
+        "min_blocked_rate": 1.0,
+        "max_detection_time": 0.1
+      }
+    },
+    {
+      "name": "certificate_validation",
+      "description": "Comprehensive certificate validation testing",
+      "enabled": true,
+      "duration": 45.0,
+      "tests": ["chain_validation", "expiration_check", "signature_verification", "revocation_check"],
+      "success_criteria": {
+        "validation_accuracy": 1.0,
+        "max_validation_time": 10.0
+      }
+    },
+    {
+      "name": "biometric_authentication",
+      "description": "Test biometric authentication methods",
+      "enabled": true,
+      "duration": 90.0,
+      "tests": ["fingerprint", "iris", "face", "voice"],
+      "success_criteria": {
+        "min_accuracy": 0.95,
+        "max_false_positive_rate": 0.01,
+        "max_false_negative_rate": 0.05
+      }
+    },
+    {
+      "name": "security_policy_enforcement",
+      "description": "Test security policy enforcement",
+      "enabled": true,
+      "duration": 75.0,
+      "tests": ["device_approval", "legacy_support", "dma_protection"],
+      "success_criteria": {
+        "policy_compliance": 1.0,
+        "enforcement_consistency": 1.0
+      }
+    },
+    {
+      "name": "advanced_attack_simulation",
+      "description": "Advanced attack simulation and detection",
+      "enabled": false,
+      "duration": 300.0,
+      "tests": ["firmware_attack", "timing_attack", "side_channel", "covert_channel"],
+      "success_criteria": {
+        "detection_rate": 0.98,
+        "false_positive_rate": 0.02
+      }
+    }
+  ],
+  "validation_criteria": {
+    "overall_security_score_threshold": 0.95,
+    "authentication_success_rate_threshold": 0.98,
+    "dma_protection_effectiveness_threshold": 1.0,
+    "certificate_validation_accuracy_threshold": 1.0,
+    "biometric_accuracy_threshold": 0.95,
+    "policy_compliance_threshold": 1.0,
+    "max_authentication_time": 5.0,
+    "max_attack_detection_time": 0.1,
+    "max_certificate_validation_time": 10.0
+  },
+  "reporting": {
+    "generate_security_report": true,
+    "include_attack_details": true,
+    "include_authentication_metrics": true,
+    "include_certificate_analysis": true,
+    "include_biometric_statistics": true,
+    "include_policy_compliance": true,
+    "include_recommendations": true,
+    "report_formats": ["html", "json", "pdf"]
+  }
+}

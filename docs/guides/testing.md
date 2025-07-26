@@ -1,552 +1,529 @@
 # Testing Guide
 
-## Overview
+The SerDes Validation Framework includes a comprehensive testing infrastructure with 91+ core tests, advanced mock implementations, and multi-protocol integration testing.
 
-This guide covers:
-- Unit testing best practices
-- Type safety in tests 
-- Mock testing patterns
-- Integration testing
-- Performance validation
+## Test Infrastructure Overview
 
-## Type-Safe Test Design
+### Test Categories
 
-### Input Validation
+The framework organizes tests into several categories:
 
-All test functions should validate numeric inputs:
+#### 1. Core Tests (91 tests) ✅
+**Status**: All passing, 0.83s execution time
+**Purpose**: Essential framework functionality validation
+
+```bash
+# Recommended command for development and CI/CD
+python -m pytest tests/ -v --tb=short --ignore=tests/integration --ignore=tests/performance --ignore=tests/legacy
+```
+
+**Test Coverage**:
+- **Basic Functionality**: 16 tests - Core framework operations
+- **Basic Imports**: 7 tests - Import system validation
+- **Certification Comprehensive**: 5 tests - Certification workflows
+- **Daisy Chain Comprehensive**: 5 tests - Multi-device testing
+- **Data Analysis**: 4 tests - Signal analysis algorithms
+- **Framework Integration**: 5 tests - Component integration
+- **Multi-Protocol**: 4 tests - Cross-protocol functionality
+- **PCIe Analyzer**: 4 tests - PCIe-specific validation
+- **Security Comprehensive**: 5 tests - Security testing
+- **Summary Tests**: 7 tests - Framework organization
+- **Tunneling Comprehensive**: 20 tests - Protocol tunneling
+- **USB4 Comprehensive**: 9 tests - USB4 functionality
+
+#### 2. Integration Tests (Partially Working)
+**Multi-Protocol Integration**: 6/6 tests ✅ (Fully working)
+**USB4 Integration**: 0/15 tests ❌ (Needs enhanced mocks)
+
+```bash
+# Multi-protocol integration (working)
+python -m pytest tests/integration/test_multi_protocol_integration.py -v
+
+# USB4 integration (needs work)
+python -m pytest tests/integration/test_usb4_integration.py -v
+```
+
+#### 3. Performance Tests (Needs Work)
+**USB4 Performance Regression**: 1/8 tests ✅
+
+```bash
+# Performance tests (partial functionality)
+python -m pytest tests/performance/ -v
+```
+
+#### 4. Legacy Tests (Properly Isolated)
+**Status**: All properly skipped
+**Purpose**: Maintain backward compatibility while avoiding conflicts
+
+```bash
+# Legacy tests are automatically ignored
+python -m pytest tests/legacy/ -v  # Will be skipped
+```
+
+## Test Execution Commands
+
+### Recommended Commands
+
+```bash
+# Primary development command (91 tests passing)
+python -m pytest tests/ -v --tb=short --ignore=tests/integration --ignore=tests/performance --ignore=tests/legacy
+
+# Multi-protocol integration tests (6 tests passing)
+python -m pytest tests/integration/test_multi_protocol_integration.py -v
+
+# All comprehensive tests
+python -m pytest tests/test_*_comprehensive.py -v
+
+# Specific test categories
+python -m pytest tests/test_basic_imports.py -v
+python -m pytest tests/test_framework_integration.py -v
+python -m pytest tests/test_usb4_comprehensive.py -v
+```
+
+### Full Test Suite
+
+```bash
+# Full command (91 passed, 25 failed from integration/performance)
+python -m pytest tests/ -v --tb=short
+```
+
+## Mock Testing Infrastructure
+
+### Automatic Mock Mode
+
+The framework automatically enables mock mode through environment variables:
 
 ```python
-from typing import Dict, List, Optional, Union
+# Set in pytest.ini
+env = 
+    SVF_MOCK_MODE=1
+    PYTHONPATH=src
+```
+
+### Mock Implementation Features
+
+#### Intelligent Protocol Detection
+```python
+class ProtocolDetector:
+    def detect_protocol_from_signal(self, signal_data, sample_rate, voltage_range):
+        # Enhanced mock logic based on signal characteristics
+        if isinstance(signal_data, dict):
+            # USB4 multi-lane format - use first lane
+            signal_array = signal_data[0]['voltage']
+        else:
+            # Single signal array
+            signal_array = signal_data
+        
+        signal_std = np.std(signal_array)
+        signal_levels = self._estimate_signal_levels(signal_array)
+        
+        # PCIe: Higher voltage range (1.2V) and PAM4 levels
+        if voltage_range >= 1.0 and len(signal_levels) >= 3:
+            return ProtocolType.PCIE
+        # Ethernet: Medium voltage range (0.8V) and PAM4 levels
+        elif voltage_range == 0.8 and len(signal_levels) >= 3 and signal_std > 0.15:
+            return ProtocolType.ETHERNET_224G
+        # USB4: Lower voltage range (0.8V) and NRZ (2 levels)
+        elif voltage_range <= 0.8 and len(signal_levels) <= 2:
+            return ProtocolType.USB4
+        else:
+            return ProtocolType.USB4
+```
+
+#### Realistic Signal Generation
+```python
+def generate_pcie_signal(self, duration: float = 5e-6):
+    """Generate PCIe-like signal for testing"""
+    sample_rate = 200e9
+    num_samples = int(duration * sample_rate)
+    
+    # PCIe 6.0 PAM4 signal (~32 GBaud)
+    symbol_rate = 32e9
+    pam4_levels = np.array([-0.6, -0.2, 0.2, 0.6])
+    symbols = np.random.choice(4, num_symbols)
+    
+    # Generate realistic signal with noise
+    voltage = np.zeros(num_samples)
+    for i, symbol in enumerate(symbols):
+        start_idx = int(i * symbol_period * sample_rate)
+        end_idx = min(int((i + 1) * symbol_period * sample_rate), num_samples)
+        if end_idx > start_idx:
+            voltage[start_idx:end_idx] = pam4_levels[symbol]
+    
+    # Add noise
+    voltage += 0.03 * np.random.randn(num_samples)
+    
+    return voltage, {
+        'sample_rate': sample_rate,
+        'voltage_range': 1.2,
+        'expected_protocol': ProtocolType.PCIE,
+        'symbol_rate': symbol_rate,
+        'modulation': 'PAM4'
+    }
+```
+
+#### Comprehensive Mock Classes
+```python
+# Available mock implementations
+from tests.mocks.analyzer import DataAnalyzer
+from tests.mocks.framework_integration import FrameworkIntegrator
+from tests.mocks.pcie_analyzer import PCIeAnalyzer
+from tests.mocks.multi_protocol import MultiProtocolComparator
+from tests.mocks.usb4_comprehensive import USB4Validator
+```
+
+## Test Configuration
+
+### pytest.ini Configuration
+```ini
+[tool:pytest]
+testpaths = tests
+python_paths = src
+addopts = -v --tb=short --ignore=tests/legacy --ignore=tests/hardware --ignore=tests/integration --ignore=tests/performance
+env = 
+    SVF_MOCK_MODE=1
+    PYTHONPATH=src
+markers =
+    hardware: marks tests as requiring hardware (deselect with '-m "not hardware"')
+    visualization: marks tests as requiring visualization libraries
+    slow: marks tests as slow (deselect with '-m "not slow"')
+    integration: marks tests as integration tests
+```
+
+### Test Markers
+
+```python
+# Hardware tests (automatically skipped in mock mode)
+@pytest.mark.hardware
+def test_real_hardware():
+    pass
+
+# Visualization tests (conditional based on dependencies)
+@pytest.mark.visualization
+def test_plotting():
+    pass
+
+# Slow tests (can be excluded for fast CI)
+@pytest.mark.slow
+def test_performance_benchmark():
+    pass
+
+# Integration tests
+@pytest.mark.integration
+def test_multi_protocol_integration():
+    pass
+```
+
+## Writing Tests
+
+### Basic Test Structure
+
+```python
+import pytest
 import numpy as np
-import numpy.typing as npt
+from serdes_validation_framework import create_validation_framework
 
-def validate_test_data(
-    data: npt.NDArray[np.float64],
-    name: str = "data"
-) -> None:
-    """
-    Validate numeric test data
+class TestFrameworkIntegration:
+    """Framework integration tests"""
     
-    Args:
-        data: Numeric data array
-        name: Array name for error messages
-        
-    Raises:
-        AssertionError: If validation fails
-    """
-    # Type validation
-    assert isinstance(data, np.ndarray), \
-        f"{name} must be numpy array, got {type(data)}"
+    def test_framework_creation(self):
+        """Test framework creation and basic functionality"""
+        framework = create_validation_framework()
+        assert framework is not None
+        assert hasattr(framework, 'detect_protocol')
     
-    # Data type validation  
-    assert np.issubdtype(data.dtype, np.floating), \
-        f"{name} must be floating-point, got {data.dtype}"
-    
-    # Value validation
-    assert len(data) > 0, f"{name} cannot be empty"
-    assert not np.any(np.isnan(data)), f"{name} contains NaN values"
-    assert not np.any(np.isinf(data)), f"{name} contains infinite values"
-```
-
-### Parameter Validation
-
-```python
-def validate_test_parameter(
-    value: float,
-    name: str,
-    min_value: Optional[float] = None,
-    max_value: Optional[float] = None
-) -> None:
-    """
-    Validate numeric test parameter
-    
-    Args:
-        value: Parameter value
-        name: Parameter name
-        min_value: Optional minimum value
-        max_value: Optional maximum value
+    def test_protocol_detection(self):
+        """Test protocol detection functionality"""
+        framework = create_validation_framework()
         
-    Raises:
-        AssertionError: If validation fails
-    """
-    # Type validation
-    assert isinstance(value, float), \
-        f"{name} must be float, got {type(value)}"
-    
-    # Range validation
-    if min_value is not None:
-        assert value >= min_value, \
-            f"{name} must be >= {min_value}"
-    
-    if max_value is not None:
-        assert value <= max_value, \
-            f"{name} must be <= {max_value}"
-```
-
-## Unit Testing
-
-### Test Case Structure
-
-```python
-import unittest
-from typing import Dict, List, Optional
-
-class TestMeasurements(unittest.TestCase):
-    """Test measurement calculations"""
-    
-    def setUp(self) -> None:
-        """Set up test data"""
-        self.test_data = {
-            'voltage': np.array([0.1, 0.2, 0.3], dtype=np.float64),
-            'current': np.array([1.0, 2.0, 3.0], dtype=np.float64)
-        }
-    
-    def test_power_calculation(self) -> None:
-        """Test power calculation with validation"""
-        # Validate inputs
-        validate_test_data(self.test_data['voltage'], 'voltage')
-        validate_test_data(self.test_data['current'], 'current')
+        # Generate test signal
+        signal_data = np.random.randn(1000) * 0.1
         
-        # Calculate power
-        power = self.test_data['voltage'] * self.test_data['current']
-        
-        # Validate result
-        self.assertTrue(np.issubdtype(power.dtype, np.floating))
-        self.assertEqual(len(power), len(self.test_data['voltage']))
-        self.assertTrue(np.all(power >= 0))
-```
-
-### Test Helper Functions
-
-```python
-class TestHelpers:
-    """Type-safe test helper functions"""
-    
-    @staticmethod
-    def generate_test_signal(
-        num_points: int,
-        amplitude: float,
-        noise: float
-    ) -> npt.NDArray[np.float64]:
-        """
-        Generate test signal with validation
-        
-        Args:
-            num_points: Number of data points
-            amplitude: Signal amplitude
-            noise: Noise amplitude
-            
-        Returns:
-            Test signal array
-            
-        Raises:
-            AssertionError: If parameters are invalid
-        """
-        # Validate inputs
-        assert isinstance(num_points, int), \
-            "num_points must be integer"
-        assert isinstance(amplitude, float), \
-            "amplitude must be float"
-        assert isinstance(noise, float), \
-            "noise must be float"
-        
-        assert num_points > 0, "num_points must be positive"
-        assert amplitude > 0, "amplitude must be positive"
-        assert noise >= 0, "noise must be non-negative"
-        
-        # Generate signal
-        time = np.arange(num_points, dtype=np.float64)
-        signal = amplitude * np.sin(2 * np.pi * time / num_points)
-        noise_data = np.random.normal(0, noise, num_points)
-        
-        return (signal + noise_data).astype(np.float64)
-    
-    @staticmethod
-    def validate_signal_properties(
-        signal: npt.NDArray[np.float64],
-        expected_rms: float,
-        tolerance: float
-    ) -> None:
-        """
-        Validate signal properties
-        
-        Args:
-            signal: Signal array to validate
-            expected_rms: Expected RMS value
-            tolerance: Validation tolerance
-            
-        Raises:
-            AssertionError: If validation fails
-        """
-        # Validate inputs
-        validate_test_data(signal, 'signal')
-        validate_test_parameter(expected_rms, 'expected_rms', min_value=0)
-        validate_test_parameter(tolerance, 'tolerance', min_value=0)
-        
-        # Calculate RMS
-        rms = np.sqrt(np.mean(signal**2))
-        
-        # Validate within tolerance
-        assert abs(rms - expected_rms) <= tolerance, \
-            f"RMS {rms:.3f} differs from expected {expected_rms:.3f}"
-```
-
-## Mock Testing
-
-### Mock Configuration
-
-```python
-from unittest.mock import MagicMock, patch
-from typing import Dict, Optional
-
-class MockTestConfig:
-    """Type-safe mock test configuration"""
-    
-    def __init__(
-        self,
-        connection_error_rate: float = 0.0,
-        command_error_rate: float = 0.0
-    ) -> None:
-        """
-        Initialize mock configuration
-        
-        Args:
-            connection_error_rate: Connection failure probability 
-            command_error_rate: Command failure probability
-        """
-        # Validate inputs
-        validate_test_parameter(
-            connection_error_rate,
-            'connection_error_rate',
-            min_value=0.0,
-            max_value=1.0
-        )
-        validate_test_parameter(
-            command_error_rate, 
-            'command_error_rate',
-            min_value=0.0,
-            max_value=1.0
+        protocol = framework.detect_protocol(
+            signal_data=signal_data,
+            sample_rate=100e9,
+            voltage_range=0.8
         )
         
-        self.connection_error_rate = connection_error_rate
-        self.command_error_rate = command_error_rate
+        assert protocol is not None
+```
 
-def configure_mock_controller(
-    config: MockTestConfig
-) -> MagicMock:
-    """
-    Configure mock controller with error simulation
+### Multi-Protocol Integration Tests
+
+```python
+class TestMultiProtocolIntegration:
+    """Multi-protocol integration tests"""
     
-    Args:
-        config: Mock test configuration
+    def test_protocol_detection_accuracy(self, protocol_detector):
+        """Test protocol detection accuracy across different protocols"""
+        test_cases = []
         
-    Returns:
-        Configured mock controller
-    """
-    controller = MagicMock()
-    
-    def mock_connect(*args):
-        if np.random.random() < config.connection_error_rate:
-            raise ConnectionError("Simulated connection failure")
-    
-    def mock_command(*args):
-        if np.random.random() < config.command_error_rate:
-            raise RuntimeError("Simulated command failure")
+        # Generate test signals for different protocols
+        pcie_signal, pcie_params = self.generate_pcie_signal()
+        ethernet_signal, ethernet_params = self.generate_ethernet_signal()
+        usb4_signal_data, usb4_params = self.generate_usb4_signal()
+        
+        # Test detection for each protocol
+        detection_results = []
+        for protocol_name, signal, params in test_cases:
+            detected_protocol = protocol_detector.detect_protocol_from_signal(
+                signal_data=signal,
+                sample_rate=params['sample_rate'],
+                voltage_range=params['voltage_range']
+            )
             
-    controller.connect.side_effect = mock_connect
-    controller.send_command.side_effect = mock_command
-    
-    return controller
+            detection_results.append({
+                'protocol_name': protocol_name,
+                'expected': params['expected_protocol'],
+                'detected': detected_protocol,
+                'correct': detected_protocol == params['expected_protocol']
+            })
+        
+        # Verify detection accuracy
+        correct_detections = sum(1 for result in detection_results if result['correct'])
+        total_detections = len(detection_results)
+        accuracy = correct_detections / total_detections
+        
+        # Require at least 66% accuracy (2 out of 3 protocols)
+        assert accuracy >= 0.66, f"Protocol detection accuracy {accuracy:.2%} below threshold"
 ```
 
-### Mock Response Generation
+### Performance Testing
 
 ```python
-def configure_mock_responses(
-    controller: MagicMock,
-    base_value: float,
-    noise_amplitude: float
-) -> None:
-    """
-    Configure mock measurement responses
+class TestPerformanceRegression:
+    """Performance regression tests"""
     
-    Args:
-        controller: Mock controller instance
-        base_value: Base measurement value
-        noise_amplitude: Response noise amplitude
-    """
-    # Validate inputs
-    validate_test_parameter(base_value, 'base_value')
-    validate_test_parameter(
-        noise_amplitude,
-        'noise_amplitude',
-        min_value=0
-    )
-    
-    def mock_measure():
-        noise = np.random.normal(0, noise_amplitude)
-        return f"{base_value + noise:.6f}"
-    
-    # Configure responses
-    controller.query.side_effect = mock_measure
-```
-
-## Integration Testing
-
-### Test Fixtures
-
-```python
-@pytest.fixture
-def test_configuration() -> Dict[str, float]:
-    """Provide validated test configuration"""
-    config = {
-        'sample_rate': 256e9,
-        'bandwidth': 120e9,
-        'timebase': 5e-12,
-        'voltage_range': 0.8
-    }
-    
-    # Validate all parameters
-    for name, value in config.items():
-        validate_test_parameter(value, name, min_value=0)
-    
-    return config
-
-@pytest.fixture
-def test_data() -> Dict[str, npt.NDArray[np.float64]]:
-    """Provide validated test data"""
-    # Generate data
-    num_points = 1000
-    time = np.arange(num_points, dtype=np.float64) / 256e9
-    voltage = TestHelpers.generate_test_signal(
-        num_points=num_points,
-        amplitude=0.5,
-        noise=0.05
-    )
-    
-    data = {
-        'time': time,
-        'voltage': voltage
-    }
-    
-    # Validate arrays
-    for name, array in data.items():
-        validate_test_data(array, name)
-    
-    return data
-```
-
-### Integration Tests
-
-```python
-def test_measurement_chain(
-    test_configuration: Dict[str, float],
-    test_data: Dict[str, npt.NDArray[np.float64]]
-) -> None:
-    """
-    Test complete measurement chain
-    
-    Args:
-        test_configuration: Test configuration parameters
-        test_data: Test signal data
-    """
-    try:
-        # Initialize components
-        scope = configure_scope(test_configuration)
-        analyzer = configure_analyzer(test_data)
+    def test_validation_performance(self):
+        """Test validation performance benchmarks"""
+        framework = create_validation_framework()
         
-        # Run measurement chain
-        waveform = scope.capture_waveform(
-            duration=1e-6,
-            sample_rate=test_configuration['sample_rate']
-        )
+        # Generate large signal dataset
+        duration = 10e-6  # 10 μs
+        sample_rate = 200e9
+        num_samples = int(duration * sample_rate)
+        signal_data = np.random.randn(num_samples) * 0.1
         
-        results = analyzer.analyze_signal(waveform)
-        
-        # Validate results
-        assert isinstance(results, dict), \
-            "Results must be dictionary"
-        
-        for name, value in results.items():
-            assert isinstance(value, float), \
-                f"Result {name} must be float"
-            assert not np.isnan(value), \
-                f"Result {name} is NaN"
-            assert not np.isinf(value), \
-                f"Result {name} is infinite"
-        
-    except Exception as e:
-        pytest.fail(f"Integration test failed: {e}")
-```
-
-## Performance Testing
-
-### Response Time Tests
-
-```python
-def measure_response_time(
-    controller: Any,
-    num_iterations: int = 100
-) -> Dict[str, float]:
-    """
-    Measure command response times
-    
-    Args:
-        controller: Controller instance
-        num_iterations: Number of test iterations
-        
-    Returns:
-        Dictionary of timing statistics
-    """
-    # Validate input
-    assert isinstance(num_iterations, int), \
-        "num_iterations must be integer"
-    assert num_iterations > 0, \
-        "num_iterations must be positive"
-    
-    response_times = []
-    
-    for _ in range(num_iterations):
         start_time = time.time()
-        controller.query_instrument('GPIB::1::INSTR', '*IDN?')
-        response_times.append(time.time() - start_time)
-    
-    # Convert to float array
-    times = np.array(response_times, dtype=np.float64)
-    
-    return {
-        'mean_ms': float(np.mean(times) * 1000),
-        'std_ms': float(np.std(times) * 1000),
-        'min_ms': float(np.min(times) * 1000),
-        'max_ms': float(np.max(times) * 1000)
-    }
+        results = framework.run_auto_validation(
+            signal_data=signal_data,
+            sample_rate=sample_rate,
+            voltage_range=0.8
+        )
+        validation_time = time.time() - start_time
+        
+        # Performance requirements
+        assert validation_time < 5.0, f"Validation took {validation_time:.2f}s, expected < 5.0s"
+        assert results is not None
 ```
 
-### Resource Usage Tests
+## Error Handling and Testing
+
+### Conditional Import Testing
 
 ```python
-def monitor_resource_usage(
-    test_function: Callable,
-    duration: float
-) -> Dict[str, float]:
-    """
-    Monitor resource usage during test
+def test_conditional_imports():
+    """Test conditional import system"""
+    from serdes_validation_framework.protocols.usb4 import VISUALIZATION_AVAILABLE
     
-    Args:
-        test_function: Test function to monitor
-        duration: Test duration in seconds
-        
-    Returns:
-        Dictionary of resource metrics
-    """
-    # Validate inputs
-    assert callable(test_function), \
-        "test_function must be callable"
-    validate_test_parameter(duration, 'duration', min_value=0)
+    # Test availability flags
+    assert isinstance(VISUALIZATION_AVAILABLE, bool)
     
-    import psutil
-    import threading
+    # Test graceful degradation
+    if VISUALIZATION_AVAILABLE:
+        from serdes_validation_framework.protocols.usb4.visualization import USB4Visualizer
+        viz = USB4Visualizer()
+        assert viz is not None
+    else:
+        # Should handle missing dependencies gracefully
+        with pytest.raises(ImportError):
+            from serdes_validation_framework.protocols.usb4.visualization import USB4Visualizer
+```
+
+### Error Condition Testing
+
+```python
+def test_error_handling():
+    """Test error handling with invalid inputs"""
+    framework = create_validation_framework()
     
-    # Initialize metrics
-    metrics = {
-        'cpu_percent': [],
-        'memory_mb': [],
-        'io_counters': []
-    }
+    # Test with None data
+    with pytest.raises((ValueError, TypeError)):
+        framework.detect_protocol(None, 100e9, 0.8)
     
-    # Monitoring thread
-    def monitor():
-        start_time = time.time()
-        while time.time() - start_time < duration:
-            metrics['cpu_percent'].append(
-                float(psutil.cpu_percent())
-            )
-            metrics['memory_mb'].append(
-                float(psutil.Process().memory_info().rss / 1e6)
-            )
-            metrics['io_counters'].append(
-                float(psutil.Process().io_counters().read_bytes / 1e6)
-            )
-            time.sleep(0.1)
+    # Test with invalid parameters
+    with pytest.raises((ValueError, TypeError)):
+        framework.detect_protocol(np.array([1, 2, 3]), -100, 0.8)
+```
+
+## CI/CD Integration
+
+### GitHub Actions Configuration
+
+```yaml
+name: SerDes Framework Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
     
-    # Run monitoring
-    monitor_thread = threading.Thread(target=monitor)
-    monitor_thread.start()
+    steps:
+    - uses: actions/checkout@v2
     
-    # Run test function
-    test_function()
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
     
-    # Wait for monitoring
-    monitor_thread.join()
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -e .
     
-    # Calculate statistics
-    results = {}
-    for metric, values in metrics.items():
-        array = np.array(values, dtype=np.float64)
-        results[f"{metric}_mean"] = float(np.mean(array))
-        results[f"{metric}_max"] = float(np.max(array))
+    - name: Run core tests
+      run: |
+        python -m pytest tests/ -v --tb=short --ignore=tests/integration --ignore=tests/performance --ignore=tests/legacy
     
-    return results
+    - name: Run integration tests
+      run: |
+        python -m pytest tests/integration/test_multi_protocol_integration.py -v
+    
+    - name: Generate coverage report
+      run: |
+        pip install pytest-cov
+        python -m pytest tests/ --cov=serdes_validation_framework --cov-report=html
+    
+    - name: Upload coverage
+      uses: codecov/codecov-action@v1
+```
+
+### Test Reporting
+
+```python
+# Generate test reports
+python -m pytest tests/ --html=report.html --self-contained-html
+
+# Generate coverage report
+python -m pytest tests/ --cov=serdes_validation_framework --cov-report=html
+
+# Performance profiling
+python -m pytest tests/ --profile
+```
+
+## Debugging Tests
+
+### Debug Logging
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Enable framework debug logging
+logger = logging.getLogger('serdes_validation_framework')
+logger.setLevel(logging.DEBUG)
+```
+
+### Test Isolation
+
+```python
+# Use fresh instances for each test
+@pytest.fixture
+def fresh_framework():
+    """Provide fresh framework instance for each test"""
+    return create_validation_framework()
+
+# Clean up resources
+@pytest.fixture(autouse=True)
+def cleanup():
+    """Automatic cleanup after each test"""
+    yield
+    # Cleanup code here
+    import gc
+    gc.collect()
+```
+
+### Mock Inspection
+
+```python
+def test_mock_behavior():
+    """Inspect mock behavior for debugging"""
+    from tests.mocks.analyzer import DataAnalyzer
+    
+    analyzer = DataAnalyzer({'test': [1, 2, 3, 4, 5]})
+    
+    # Check available methods
+    methods = [method for method in dir(analyzer) if not method.startswith('_')]
+    print(f"Available methods: {methods}")
+    
+    # Test method behavior
+    stats = analyzer.compute_statistics('test')
+    print(f"Statistics result: {stats}")
+    
+    assert 'mean' in stats
+    assert 'std' in stats
 ```
 
 ## Best Practices
 
-### 1. Type Validation
+### 1. Test Organization
+- Keep core tests fast and reliable
+- Isolate integration tests that may be flaky
+- Use proper test markers for categorization
 
-Always validate numeric types:
-```python
-assert isinstance(value, float), f"Expected float, got {type(value)}"
-```
-
-### 2. Test Organization
-
-Use clear test case structure:
-```python
-class TestModule(unittest.TestCase):
-    """Test module functionality"""
-    
-    def setUp(self) -> None:
-        """Set up test fixtures"""
-        pass
-        
-    def tearDown(self) -> None:
-        """Clean up test fixtures"""
-        pass
-```
+### 2. Mock Implementation
+- Make mocks realistic and consistent
+- Handle different input formats gracefully
+- Provide configurable behavior for different scenarios
 
 ### 3. Error Handling
+- Test both success and failure paths
+- Validate error messages and types
+- Ensure graceful degradation
 
-Use proper error hierarchy:
+### 4. Performance
+- Keep core tests under 1 second total execution time
+- Use appropriate timeouts for integration tests
+- Profile and optimize slow tests
+
+### 5. Maintainability
+- Keep tests simple and focused
+- Use descriptive test names and docstrings
+- Maintain test documentation
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Import Errors**: Ensure PYTHONPATH is set correctly
+2. **Mock Mode Issues**: Verify SVF_MOCK_MODE=1 is set
+3. **Test Isolation**: Use fresh fixtures for each test
+4. **Performance Issues**: Check for resource leaks
+
+### Solutions
+
 ```python
-class TestError(Exception):
-    """Base test error"""
-    pass
+# Fix import issues
+import sys
+sys.path.insert(0, 'src')
 
-class ValidationError(TestError):
-    """Validation error"""
-    pass
+# Verify mock mode
+import os
+assert os.environ.get('SVF_MOCK_MODE') == '1'
 
-class ResourceError(TestError):
-    """Resource error"""
-    pass
+# Resource cleanup
+@pytest.fixture(autouse=True)
+def cleanup_resources():
+    yield
+    # Cleanup code
+    import gc
+    gc.collect()
 ```
 
-### 4. Mock Testing
+## Next Steps
 
-Configure realistic mock behavior:
-```python
-def configure_realistic_mock(
-    base_value: float,
-    noise: float,
-    delay: float
-) -> None:
-    """Configure realistic mock responses"""
-    validate_test_parameter(base_value, 'base_value')
-    validate_test_parameter(noise, 'noise', min_value=0)
-    validate_test_parameter(delay, 'delay', min_value=0)
-```
-
-## See Also
-
-- [Mock Testing Guide](../tutorials/mock_testing.md)
-- [Testing Examples](../examples/testing_examples.md)
+- Explore [Mock Testing Guide](../tutorials/mock_testing.md) for detailed mock usage
+- Check [API Reference](../api/index.md) for complete testing API
+- See [CI/CD Integration](../guides/cicd.md) for automated testing setup
+- Review [Troubleshooting Guide](../guides/troubleshooting.md) for common issues

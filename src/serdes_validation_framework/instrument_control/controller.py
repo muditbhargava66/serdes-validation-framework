@@ -7,9 +7,10 @@ import pyvisa
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class InstrumentController:
     def __init__(self):
-        self.rm = pyvisa.ResourceManager('@py')
+        self.rm = pyvisa.ResourceManager("@py")
         self.instruments = {}
 
     def connect_instrument(self, resource_name):
@@ -59,10 +60,11 @@ class InstrumentController:
         else:
             raise ValueError(f"Instrument {resource_name} not connected")
 
+
 if __name__ == "__main__":
     ic = InstrumentController()
-    ic.connect_instrument('GPIB::2::INSTR')
-    ic.send_command('GPIB::2::INSTR', '*RST')
-    response = ic.query_instrument('GPIB::2::INSTR', '*IDN?')
+    ic.connect_instrument("GPIB::2::INSTR")
+    ic.send_command("GPIB::2::INSTR", "*RST")
+    response = ic.query_instrument("GPIB::2::INSTR", "*IDN?")
     print(response)
-    ic.disconnect_instrument('GPIB::2::INSTR')
+    ic.disconnect_instrument("GPIB::2::INSTR")

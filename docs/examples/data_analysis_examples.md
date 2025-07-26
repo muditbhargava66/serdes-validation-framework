@@ -637,4 +637,4 @@ python scripts/data_analysis.py --input problematic_file.csv --verbose
 - [Data Analysis API Reference](../api/data_analysis.md)
 - [PAM4 Analysis Documentation](../api/pam4_analysis.md)
 - [PCIe Examples](pcie_examples.md)
-- [Scripts Documentation](../../scripts/README.md)
+- Scripts Documentation

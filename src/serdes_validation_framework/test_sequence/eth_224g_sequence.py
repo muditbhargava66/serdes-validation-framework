@@ -13,24 +13,25 @@ from .sequencer import PCIeTestSequencer as TestSequencer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class TrainingResults:
     """Data class for link training results"""
-    training_time: float              # Training duration in seconds
-    convergence_status: str           # PASS/FAIL status
-    final_eq_settings: List[float]    # Final equalizer tap values
-    adaptation_error: float           # Current adaptation error value
-    error_history: List[float]        # Optional history for plotting
+
+    training_time: float  # Training duration in seconds
+    convergence_status: str  # PASS/FAIL status
+    final_eq_settings: List[float]  # Final equalizer tap values
+    adaptation_error: float  # Current adaptation error value
+    error_history: List[float]  # Optional history for plotting
 
     def __post_init__(self) -> None:
         """Validate training results data types"""
         assert isinstance(self.training_time, float), "Training time must be a float"
         assert isinstance(self.convergence_status, str), "Convergence status must be a string"
-        assert all(isinstance(x, float) for x in self.final_eq_settings), \
-            "Equalizer settings must be floats"
+        assert all(isinstance(x, float) for x in self.final_eq_settings), "Equalizer settings must be floats"
         assert isinstance(self.adaptation_error, float), "Adaptation error must be a float"
-        assert all(isinstance(x, float) for x in self.error_history), \
-            "Error history must contain floats"
+        assert all(isinstance(x, float) for x in self.error_history), "Error history must contain floats"
+
 
 @dataclass
 class ComplianceResults:
@@ -42,16 +43,14 @@ class ComplianceResults:
         evm_results: EVMResults,
         eye_results: EyeResults,
         jitter_results: Dict[str, float],
-        test_status: str
+        test_status: str,
     ):
         class TrackedEyeResults(EyeResults):
             """Wrapper for EyeResults that notifies parent of changes"""
+
             def __init__(self, eye_results, parent):
                 # Copy all the data from the original EyeResults
-                super().__init__(
-                    eye_heights=eye_results.eye_heights.copy(),
-                    eye_widths=eye_results.eye_widths.copy()
-                )
+                super().__init__(eye_heights=eye_results.eye_heights.copy(), eye_widths=eye_results.eye_widths.copy())
                 self._parent = parent
 
             @property
@@ -73,11 +72,7 @@ class ComplianceResults:
                 self._parent._update_test_status()
 
         # Store the compliance criteria as class constants
-        self.COMPLIANCE_CRITERIA = {
-            'min_eye_height': 0.2,
-            'max_rms_evm': 5.0,
-            'max_total_jitter': 0.3e-12
-        }
+        self.COMPLIANCE_CRITERIA = {"min_eye_height": 0.2, "max_rms_evm": 5.0, "max_total_jitter": 0.3e-12}
 
         self._pam4_levels = pam4_levels
         self._evm_results = evm_results
@@ -108,12 +103,15 @@ class ComplianceResults:
 
     def _update_test_status(self) -> None:
         """Update test status based on current measurements"""
-        if (self.eye_results.worst_eye_height < self.COMPLIANCE_CRITERIA['min_eye_height'] or
-            self.evm_results.rms_evm_percent > self.COMPLIANCE_CRITERIA['max_rms_evm'] or
-            self.jitter_results['tj'] > self.COMPLIANCE_CRITERIA['max_total_jitter']):
-            self._test_status = 'FAIL'
+        if (
+            self.eye_results.worst_eye_height < self.COMPLIANCE_CRITERIA["min_eye_height"]
+            or self.evm_results.rms_evm_percent > self.COMPLIANCE_CRITERIA["max_rms_evm"]
+            or self.jitter_results["tj"] > self.COMPLIANCE_CRITERIA["max_total_jitter"]
+        ):
+            self._test_status = "FAIL"
         else:
-            self._test_status = 'PASS'
+            self._test_status = "PASS"
+
 
 class Ethernet224GTestSequence(TestSequencer):
     """Test sequencer for 224G Ethernet validation"""
@@ -128,22 +126,22 @@ class Ethernet224GTestSequence(TestSequencer):
     def _initialize_test_configs(self) -> Dict[str, Any]:
         """
         Initialize test configurations for 224G testing
-        
+
         Returns:
             Dictionary of test configurations
         """
         return {
-            'sampling_rate': 256e9,    # 256 GSa/s
-            'bandwidth': 120e9,        # 120 GHz bandwidth
-            'ui_period': 8.9e-12,      # Unit interval for 224G
-            'voltage_range': 0.8,      # Typical PAM4 voltage range
-            'prbs_pattern': 'PRBS31'   # Standard test pattern
+            "sampling_rate": 256e9,  # 256 GSa/s
+            "bandwidth": 120e9,  # 120 GHz bandwidth
+            "ui_period": 8.9e-12,  # Unit interval for 224G
+            "voltage_range": 0.8,  # Typical PAM4 voltage range
+            "prbs_pattern": "PRBS31",  # Standard test pattern
         }
 
     def setup_instruments(self, resource_names: List[str]) -> None:
         """
         Set up required instruments for testing
-        
+
         Args:
             resource_names: List of VISA resource identifiers
         """
@@ -156,14 +154,10 @@ class Ethernet224GTestSequence(TestSequencer):
             logger.error(f"Failed to setup instruments: {e}")
             raise
 
-    def configure_scope_for_224g(
-        self,
-        scope_resource: str,
-        custom_config: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def configure_scope_for_224g(self, scope_resource: str, custom_config: Optional[Dict[str, Any]] = None) -> None:
         """
         Configure oscilloscope for 224G measurements
-        
+
         Args:
             scope_resource: Scope resource identifier
             custom_config: Optional custom configuration parameters
@@ -173,7 +167,7 @@ class Ethernet224GTestSequence(TestSequencer):
             config = custom_config if custom_config is not None else self.test_configs.copy()
 
             # Check required float parameters
-            float_params = {'sampling_rate', 'bandwidth', 'voltage_range'}
+            float_params = {"sampling_rate", "bandwidth", "voltage_range"}
             missing_params = float_params - set(config.keys())
             if missing_params:
                 raise AssertionError(f"Missing required parameters: {missing_params}")
@@ -188,7 +182,7 @@ class Ethernet224GTestSequence(TestSequencer):
                 f":ACQuire:SRATe {config['sampling_rate']}",
                 f":CHANnel1:BANDwidth {config['bandwidth']}",
                 ":TIMebase:SCALe 5E-12",
-                f":CHANnel1:RANGe {config['voltage_range']}"
+                f":CHANnel1:RANGe {config['voltage_range']}",
             ]
 
             for cmd in commands:
@@ -201,19 +195,16 @@ class Ethernet224GTestSequence(TestSequencer):
             raise
 
     def run_link_training_test(
-        self,
-        scope_resource: str,
-        pattern_gen_resource: str,
-        timeout_seconds: float = 10.0
+        self, scope_resource: str, pattern_gen_resource: str, timeout_seconds: float = 10.0
     ) -> TrainingResults:
         """
         Execute link training test sequence
-        
+
         Args:
             scope_resource: Scope resource identifier
             pattern_gen_resource: Pattern generator resource identifier
             timeout_seconds: Maximum training time in seconds
-            
+
         Returns:
             TrainingResults object containing test results
         """
@@ -222,23 +213,14 @@ class Ethernet224GTestSequence(TestSequencer):
 
         try:
             # Configure pattern generator
-            self.instrument_controller.send_command(
-                pattern_gen_resource,
-                f":PATTern:TYPE {self.test_configs['prbs_pattern']}"
-            )
+            self.instrument_controller.send_command(pattern_gen_resource, f":PATTern:TYPE {self.test_configs['prbs_pattern']}")
 
             # Configure scope for training capture
             self.configure_scope_for_224g(scope_resource)
-            self.instrument_controller.send_command(
-                scope_resource,
-                ":ACQuire:POINts 1000000"
-            )
+            self.instrument_controller.send_command(scope_resource, ":ACQuire:POINts 1000000")
 
             # Capture training sequence
-            waveform_data = self._capture_training_sequence(
-                scope_resource,
-                timeout_seconds
-            )
+            waveform_data = self._capture_training_sequence(scope_resource, timeout_seconds)
 
             # Analyze training results
             results = self._analyze_training_results(waveform_data)
@@ -250,18 +232,14 @@ class Ethernet224GTestSequence(TestSequencer):
             logger.error(f"Failed to run link training test: {e}")
             raise
 
-    def _capture_training_sequence(
-        self,
-        scope_resource: str,
-        timeout_seconds: float
-    ) -> npt.NDArray[np.float64]:
+    def _capture_training_sequence(self, scope_resource: str, timeout_seconds: float) -> npt.NDArray[np.float64]:
         """
         Capture link training sequence data
-        
+
         Args:
             scope_resource: Scope resource identifier
             timeout_seconds: Maximum capture time
-            
+
         Returns:
             Array of captured waveform data
         """
@@ -276,32 +254,25 @@ class Ethernet224GTestSequence(TestSequencer):
             self.instrument_controller.send_command(scope_resource, ":SINGle")
 
             # Get waveform data
-            raw_data = self.instrument_controller.query_instrument(
-                scope_resource,
-                ":WAVeform:DATA?"
-            )
+            raw_data = self.instrument_controller.query_instrument(scope_resource, ":WAVeform:DATA?")
 
-            return np.array(raw_data.split(','), dtype=np.float64)
+            return np.array(raw_data.split(","), dtype=np.float64)
 
         except Exception as e:
             logger.error(f"Failed to capture training sequence: {e}")
             raise
 
-    def _analyze_training_results(
-        self,
-        waveform_data: npt.NDArray[np.float64]
-    ) -> TrainingResults:
+    def _analyze_training_results(self, waveform_data: npt.NDArray[np.float64]) -> TrainingResults:
         """
         Analyze link training sequence results
-        
+
         Args:
             waveform_data: Captured waveform data
-            
+
         Returns:
             TrainingResults object with analysis
         """
-        assert np.issubdtype(waveform_data.dtype, np.floating), \
-            "Waveform data must contain floating-point numbers"
+        assert np.issubdtype(waveform_data.dtype, np.floating), "Waveform data must contain floating-point numbers"
         assert len(waveform_data) > 0, "Waveform data cannot be empty"
 
         try:
@@ -313,17 +284,17 @@ class Ethernet224GTestSequence(TestSequencer):
             output = np.zeros_like(waveform_data)
 
             for i in range(len(waveform_data) - num_taps + 1):
-                output[i] = np.dot(tap_weights, waveform_data[i:i+num_taps])
+                output[i] = np.dot(tap_weights, waveform_data[i : i + num_taps])
 
             # Calculate error over valid range
-            error = np.mean(np.abs(waveform_data[num_taps-1:] - output[:-(num_taps-1)]))
+            error = np.mean(np.abs(waveform_data[num_taps - 1 :] - output[: -(num_taps - 1)]))
 
             # Track error history for plotting
             block_size = 1000
             error_history = []
 
             for i in range(0, len(waveform_data) - block_size, block_size):
-                block_error = float(np.mean(np.abs(waveform_data[i:i+block_size])))
+                block_error = float(np.mean(np.abs(waveform_data[i : i + block_size])))
                 error_history.append(block_error)
 
             # Determine convergence
@@ -331,11 +302,11 @@ class Ethernet224GTestSequence(TestSequencer):
             status = "PASS" if error < convergence_threshold else "FAIL"
 
             results = TrainingResults(
-                training_time=float(len(waveform_data) / self.test_configs['sampling_rate']),
+                training_time=float(len(waveform_data) / self.test_configs["sampling_rate"]),
                 convergence_status=status,
                 final_eq_settings=tap_weights,
                 adaptation_error=float(error),
-                error_history=error_history
+                error_history=error_history,
             )
 
             return results
@@ -344,21 +315,17 @@ class Ethernet224GTestSequence(TestSequencer):
             logger.error(f"Failed to analyze training results: {e}")
             raise
 
-    def _calculate_equalizer_taps(
-        self,
-        waveform_data: npt.NDArray[np.float64]
-    ) -> List[float]:
+    def _calculate_equalizer_taps(self, waveform_data: npt.NDArray[np.float64]) -> List[float]:
         """
         Calculate equalizer tap weights from training data
-        
+
         Args:
             waveform_data: Captured waveform data
-            
+
         Returns:
             List of calculated tap weights
         """
-        assert np.issubdtype(waveform_data.dtype, np.floating), \
-            "Waveform data must contain floating-point numbers"
+        assert np.issubdtype(waveform_data.dtype, np.floating), "Waveform data must contain floating-point numbers"
         assert len(waveform_data) > 0, "Waveform data cannot be empty"
 
         try:
@@ -369,8 +336,8 @@ class Ethernet224GTestSequence(TestSequencer):
 
             # Process data
             for i in range(len(waveform_data) - num_taps):
-                input_vector = waveform_data[i:i+num_taps]
-                desired = waveform_data[i+num_taps]
+                input_vector = waveform_data[i : i + num_taps]
+                desired = waveform_data[i + num_taps]
                 output = np.dot(tap_weights, input_vector)
                 error = desired - output
                 tap_weights += learning_rate * error * input_vector
@@ -381,18 +348,14 @@ class Ethernet224GTestSequence(TestSequencer):
             logger.error(f"Failed to calculate equalizer taps: {e}")
             raise
 
-    def measure_pam4_levels(
-        self,
-        scope_resource: str,
-        measurement_time: float = 1.0
-    ) -> PAM4Levels:
+    def measure_pam4_levels(self, scope_resource: str, measurement_time: float = 1.0) -> PAM4Levels:
         """
         Measure PAM4 signal levels with enhanced validation
-        
+
         Args:
             scope_resource: Scope resource identifier
             measurement_time: Measurement duration in seconds
-            
+
         Returns:
             PAM4Levels object containing analysis results
         """
@@ -412,8 +375,8 @@ class Ethernet224GTestSequence(TestSequencer):
                 logger.warning(f"Waveform range ({data_range:.2f}) seems small for PAM4")
 
             # Analyze PAM4 levels
-            analyzer = PAM4Analyzer({'voltage': waveform_data})
-            level_analysis = analyzer.analyze_level_separation('voltage')
+            analyzer = PAM4Analyzer({"voltage": waveform_data})
+            level_analysis = analyzer.analyze_level_separation("voltage")
 
             return level_analysis
 
@@ -422,19 +385,16 @@ class Ethernet224GTestSequence(TestSequencer):
             raise
 
     def run_compliance_test_suite(
-        self,
-        scope_resource: str,
-        pattern_gen_resource: str,
-        test_duration: float = 10.0
+        self, scope_resource: str, pattern_gen_resource: str, test_duration: float = 10.0
     ) -> ComplianceResults:
         """
         Run full 224G compliance test suite
-        
+
         Args:
             scope_resource: Scope resource identifier
             pattern_gen_resource: Pattern generator resource identifier
             test_duration: Total test duration in seconds
-            
+
         Returns:
             ComplianceResults object containing all test results
         """
@@ -449,18 +409,14 @@ class Ethernet224GTestSequence(TestSequencer):
             evm_results = self._measure_evm(scope_resource)
 
             # Determine overall compliance status
-            compliance_criteria = {
-                'min_eye_height': 0.2,
-                'max_rms_evm': 5.0,
-                'max_total_jitter': 0.3
-            }
+            compliance_criteria = {"min_eye_height": 0.2, "max_rms_evm": 5.0, "max_total_jitter": 0.3}
 
             test_status = "PASS"
-            if eye_results.worst_eye_height < compliance_criteria['min_eye_height']:
+            if eye_results.worst_eye_height < compliance_criteria["min_eye_height"]:
                 test_status = "FAIL"
-            if evm_results.rms_evm_percent > compliance_criteria['max_rms_evm']:
+            if evm_results.rms_evm_percent > compliance_criteria["max_rms_evm"]:
                 test_status = "FAIL"
-            if jitter_results['tj'] > compliance_criteria['max_total_jitter']:
+            if jitter_results["tj"] > compliance_criteria["max_total_jitter"]:
                 test_status = "FAIL"
 
             results = ComplianceResults(
@@ -468,7 +424,7 @@ class Ethernet224GTestSequence(TestSequencer):
                 evm_results=evm_results,
                 eye_results=eye_results,
                 jitter_results=jitter_results,
-                test_status=test_status
+                test_status=test_status,
             )
 
             logger.info(f"Compliance test suite completed: {test_status}")
@@ -478,79 +434,52 @@ class Ethernet224GTestSequence(TestSequencer):
             logger.error(f"Failed to run compliance test suite: {e}")
             raise
 
-    def _measure_eye_diagram(
-        self,
-        scope_resource: str
-    ) -> EyeResults:
+    def _measure_eye_diagram(self, scope_resource: str) -> EyeResults:
         """
         Measure eye diagram parameters
-        
+
         Args:
             scope_resource: Scope resource identifier
-            
+
         Returns:
             EyeResults object containing measurements
         """
         try:
-            self.instrument_controller.send_command(
-                scope_resource,
-                ":MEASure:EYE:ENABle"
-            )
+            self.instrument_controller.send_command(scope_resource, ":MEASure:EYE:ENABle")
 
             eye_heights = []
             eye_widths = []
 
             for level in range(3):  # Three eyes in PAM4
-                height = float(self.instrument_controller.query_instrument(
-                    scope_resource,
-                    f":MEASure:EYE{level}:HEIGht?"
-                ))
-                width = float(self.instrument_controller.query_instrument(
-                    scope_resource,
-                    f":MEASure:EYE{level}:WIDTh?"
-                ))
+                height = float(self.instrument_controller.query_instrument(scope_resource, f":MEASure:EYE{level}:HEIGht?"))
+                width = float(self.instrument_controller.query_instrument(scope_resource, f":MEASure:EYE{level}:WIDTh?"))
                 eye_heights.append(height)
                 eye_widths.append(width)
 
             # Create EyeResults with just the measurements
-            return EyeResults(
-                eye_heights=eye_heights,
-                eye_widths=eye_widths
-            )
+            return EyeResults(eye_heights=eye_heights, eye_widths=eye_widths)
 
         except Exception as e:
             logger.error(f"Failed to measure eye diagram: {e}")
             raise
 
-    def _measure_jitter(
-        self,
-        scope_resource: str
-    ) -> Dict[str, float]:
+    def _measure_jitter(self, scope_resource: str) -> Dict[str, float]:
         """
         Measure jitter components
-        
+
         Args:
             scope_resource: Scope resource identifier
-            
+
         Returns:
             Dictionary of jitter measurements
         """
         try:
-            self.instrument_controller.send_command(
-                scope_resource,
-                ":MEASure:JITTer:ENABle"
-            )
+            self.instrument_controller.send_command(scope_resource, ":MEASure:JITTer:ENABle")
 
             measurements = {
-                'tj': float(self.instrument_controller.query_instrument(
-                    scope_resource, ":MEASure:JITTer:TJ?"
-                )),
-                'rj': float(self.instrument_controller.query_instrument(
-                    scope_resource, ":MEASure:JITTer:RJ?"
-                )),
-                'dj': float(self.instrument_controller.query_instrument(
-                    scope_resource, ":MEASure:JITTer:DJ?"
-                ))
+                "tj": float(self.instrument_controller.query_instrument(scope_resource, ":MEASure:JITTer:TJ?")),
+                "rj": float(self.instrument_controller.query_instrument(scope_resource, ":MEASure:JITTer:RJ?")),
+                "dj": float(self.instrument_controller.query_instrument(scope_resource, ":MEASure:JITTer:DJ?")),
             }
             return measurements
 
@@ -558,18 +487,14 @@ class Ethernet224GTestSequence(TestSequencer):
             logger.error(f"Failed to measure jitter: {e}")
             raise
 
-    def _measure_evm(
-        self,
-        scope_resource: str,
-        measurement_time: float = 1.0
-    ) -> EVMResults:
+    def _measure_evm(self, scope_resource: str, measurement_time: float = 1.0) -> EVMResults:
         """
         Measure Error Vector Magnitude
-        
+
         Args:
             scope_resource: Scope resource identifier
             measurement_time: Measurement duration in seconds
-            
+
         Returns:
             EVMResults object containing EVM measurements
         """
@@ -579,32 +504,25 @@ class Ethernet224GTestSequence(TestSequencer):
         try:
             # Capture waveform for EVM analysis
             waveform_data = self._capture_waveform(scope_resource, measurement_time)
-            time_data = np.arange(len(waveform_data)) / self.test_configs['sampling_rate']
+            time_data = np.arange(len(waveform_data)) / self.test_configs["sampling_rate"]
 
             # Create analyzer and calculate EVM
-            analyzer = PAM4Analyzer({
-                'voltage': waveform_data,
-                'time': time_data
-            })
+            analyzer = PAM4Analyzer({"voltage": waveform_data, "time": time_data})
 
-            return analyzer.calculate_evm('voltage', 'time')
+            return analyzer.calculate_evm("voltage", "time")
 
         except Exception as e:
             logger.error(f"Failed to measure EVM: {e}")
             raise
 
-    def _capture_waveform(
-        self,
-        scope_resource: str,
-        capture_time: float
-    ) -> npt.NDArray[np.float64]:
+    def _capture_waveform(self, scope_resource: str, capture_time: float) -> npt.NDArray[np.float64]:
         """
         Capture waveform data from scope
-        
+
         Args:
             scope_resource: Scope resource identifier
             capture_time: Capture duration in seconds
-            
+
         Returns:
             Array of waveform data points
         """
@@ -613,33 +531,27 @@ class Ethernet224GTestSequence(TestSequencer):
 
         try:
             # Calculate required points
-            sample_points = int(self.test_configs['sampling_rate'] * capture_time)
+            sample_points = int(self.test_configs["sampling_rate"] * capture_time)
 
             # Configure acquisition
-            self.instrument_controller.send_command(
-                scope_resource,
-                f":ACQuire:POINts {sample_points}"
-            )
+            self.instrument_controller.send_command(scope_resource, f":ACQuire:POINts {sample_points}")
 
             # Trigger capture
             self.instrument_controller.send_command(scope_resource, ":RUN")
             self.instrument_controller.send_command(scope_resource, ":SINGle")
 
             # Get waveform data
-            raw_data = self.instrument_controller.query_instrument(
-                scope_resource,
-                ":WAVeform:DATA?"
-            )
+            raw_data = self.instrument_controller.query_instrument(scope_resource, ":WAVeform:DATA?")
 
             # Handle MagicMock and real responses
-            if hasattr(raw_data, '_mock_return_value'):
+            if hasattr(raw_data, "_mock_return_value"):
                 logger.debug("Using synthetic data for mock scope")
                 return self._generate_synthetic_pam4_data(sample_points)
 
             # Process string data from real scope
-            if isinstance(raw_data, str) and ',' in raw_data:
+            if isinstance(raw_data, str) and "," in raw_data:
                 try:
-                    waveform = np.array(raw_data.split(','), dtype=np.float64)
+                    waveform = np.array(raw_data.split(","), dtype=np.float64)
                     if len(waveform) > 0:
                         return waveform
                 except (ValueError, TypeError) as e:
@@ -656,10 +568,10 @@ class Ethernet224GTestSequence(TestSequencer):
     def _generate_synthetic_pam4_data(self, num_points: int) -> npt.NDArray[np.float64]:
         """
         Generate synthetic PAM4 waveform data with clear voltage levels
-        
+
         Args:
             num_points: Number of data points to generate
-            
+
         Returns:
             Array of synthetic PAM4 data
         """
@@ -676,7 +588,7 @@ class Ethernet224GTestSequence(TestSequencer):
             noise = np.random.normal(0, noise_amplitude, num_points)
 
             # Add timing jitter simulation
-            t = np.linspace(0, num_points/self.test_configs['sampling_rate'], num_points)
+            t = np.linspace(0, num_points / self.test_configs["sampling_rate"], num_points)
             jitter = 0.1 * np.sin(2 * np.pi * 1e9 * t)  # 1 GHz jitter component
 
             # Combine signal components
@@ -691,7 +603,7 @@ class Ethernet224GTestSequence(TestSequencer):
     def cleanup(self, resource_names: Optional[List[str]] = None) -> None:
         """
         Clean up and disconnect instruments
-        
+
         Args:
             resource_names: Optional list of instrument resources to disconnect
         """
@@ -712,14 +624,10 @@ class Ethernet224GTestSequence(TestSequencer):
             logger.error(f"Cleanup failed: {e}")
             raise
 
-    def generate_report(
-        self,
-        compliance_results: ComplianceResults,
-        report_file: str
-    ) -> None:
+    def generate_report(self, compliance_results: ComplianceResults, report_file: str) -> None:
         """
         Generate test report from compliance results
-        
+
         Args:
             compliance_results: ComplianceResults object
             report_file: Output file path
@@ -727,7 +635,7 @@ class Ethernet224GTestSequence(TestSequencer):
         assert isinstance(report_file, str), "Report file path must be a string"
 
         try:
-            with open(report_file, 'w') as f:
+            with open(report_file, "w") as f:
                 f.write("224G Ethernet Compliance Test Report\n")
                 f.write("===================================\n\n")
 
@@ -757,6 +665,7 @@ class Ethernet224GTestSequence(TestSequencer):
         except Exception as e:
             logger.error(f"Failed to generate report: {e}")
             raise
+
 
 if __name__ == "__main__":
     # Example usage

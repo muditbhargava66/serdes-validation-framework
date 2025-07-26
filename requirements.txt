@@ -1,4 +1,5 @@
-# Core dependencies only (managed via pyproject.toml)
+# Core dependencies for SerDes Validation Framework v1.4.0
+# These dependencies are also managed via pyproject.toml
 numpy>=1.26.0
 scipy>=1.13.1,<2.0.0
 pandas>=2.2.3
@@ -11,4 +12,5 @@ pyusb>=1.2.1
 python-usbtmc>=0.8
 gpib-ctypes @ git+https://github.com/tivek/gpib_ctypes
 zeroconf>=0.131.0
-linkify-it-py
+psutil>=5.9.0
+plotly>=5.17.0
