@@ -15,7 +15,7 @@ def test_framework_version():
     try:
         from serdes_validation_framework import __version__
 
-        assert __version__ == "1.4.0"
+        assert __version__ == "1.4.1"
     except ImportError:
         pytest.skip("Framework version not available")
 

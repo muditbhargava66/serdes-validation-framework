@@ -31,7 +31,7 @@ Quick Start:
 """
 
 # Package version
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 # Import main framework components for easy access with error handling
 try:
@@ -54,6 +54,20 @@ try:
 except ImportError:
     PROTOCOL_DETECTOR_AVAILABLE = False
 
+try:
+    from .stress_testing import LoopbackStressTest, StressTestConfig, StressTestResults, create_stress_test_config
+
+    STRESS_TESTING_AVAILABLE = True
+except ImportError:
+    STRESS_TESTING_AVAILABLE = False
+
+try:
+    from .jupyter_dashboard import DashboardConfig, EyeDiagramDashboard, InteractivePlotter, WaveformAnalyzer, create_dashboard
+
+    JUPYTER_DASHBOARD_AVAILABLE = True
+except ImportError:
+    JUPYTER_DASHBOARD_AVAILABLE = False
+
 # Conditional exports based on availability
 __all__ = ["__version__"]
 
@@ -71,5 +85,22 @@ if FRAMEWORK_AVAILABLE:
 if PROTOCOL_DETECTOR_AVAILABLE:
     __all__.append("ProtocolType")
 
+if STRESS_TESTING_AVAILABLE:
+    __all__.extend([
+        "LoopbackStressTest",
+        "StressTestConfig", 
+        "StressTestResults",
+        "create_stress_test_config"
+    ])
+
+if JUPYTER_DASHBOARD_AVAILABLE:
+    __all__.extend([
+        "EyeDiagramDashboard",
+        "create_dashboard",
+        "DashboardConfig",
+        "WaveformAnalyzer",
+        "InteractivePlotter"
+    ])
+
 # Add availability flags for testing
-__all__.extend(["FRAMEWORK_AVAILABLE", "PROTOCOL_DETECTOR_AVAILABLE"])
+__all__.extend(["FRAMEWORK_AVAILABLE", "PROTOCOL_DETECTOR_AVAILABLE", "STRESS_TESTING_AVAILABLE", "JUPYTER_DASHBOARD_AVAILABLE"])

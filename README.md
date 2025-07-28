@@ -2,7 +2,7 @@
 
 # 🚀 SerDes Validation Framework
 
-![serdes-validation-framework Version](https://img.shields.io/badge/version-1.4.0-blue)
+![serdes-validation-framework Version](https://img.shields.io/badge/version-1.4.1-blue)
 ![Production Ready](https://img.shields.io/badge/status-production%20ready-brightgreen)
 [![CI](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/ci.yml)
 [![Lint](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/muditbhargava66/serdes-validation-framework/actions/workflows/lint.yml)
@@ -32,7 +32,37 @@
 - 🎛️ **Universal Instrument Control:** GPIB/USB interface for multi-vendor support
 - 📋 **Flexible Test Sequences:** Customizable, reusable test automation
 
-### 🆕 Latest Features in v1.4.0
+### 🆕 Latest Features in v1.4.1
+- 🌐 **REST API Framework:** Complete web API for remote access and integration
+  - **FastAPI-based REST API:** Modern, async API with automatic OpenAPI documentation
+  - **Eye Diagram Analysis:** Remote eye diagram analysis with mask compliance checking
+  - **Waveform Analysis:** Signal quality assessment via HTTP endpoints
+  - **Stress Testing API:** Asynchronous stress test execution with real-time monitoring
+  - **Test Fixture Control:** Remote control of test equipment and environmental monitoring
+  - **CLI Client:** Command-line interface for API interaction
+  - **Interactive Documentation:** Swagger UI at `/docs` for API exploration
+
+- 🔄 **Dual Stress Testing Systems:** Comprehensive stress testing with two complementary approaches
+  - **Loopback Stress Testing:** General-purpose TX → RX → TX simulation with progressive degradation tracking
+    - Multi-cycle testing (1000+ cycles) with real-time monitoring
+    - Signal quality tracking over time (eye height, jitter, SNR, BER)
+    - CSV data export and interactive plots
+    - Multi-protocol support (USB4, PCIe, Ethernet)
+  - **USB4-Specific Stress Testing:** Protocol-aware stress scenarios for USB4/Thunderbolt
+    - Thermal stress testing with temperature monitoring
+    - Error injection and recovery testing
+    - Power cycling and bandwidth saturation stress
+    - Multi-device stress testing scenarios
+
+- 📊 **Jupyter Dashboard System:** Interactive eye diagram visualization in Jupyter notebooks
+  - **Captured Waveform Analysis:** Direct integration with SVF analyzers
+  - **Eye Diagram Dashboards:** Professional-grade eye diagram visualization
+  - **Pass/Fail Annotations:** Automatic measurement annotations from SVF
+  - **Interactive Controls:** Real-time parameter adjustment with widgets
+  - **Multi-Protocol Support:** USB4, PCIe, Ethernet dashboard templates
+  - **Export Capabilities:** Save results and plots in multiple formats
+
+### 🔥 Major Features in v1.4.0
 - 🔌 **Complete USB4/Thunderbolt 4 Support:** Full 40 Gbps dual-lane validation with tunneling protocols
 - 🔒 **Thunderbolt 4 Certification Suite:** Intel-compliant certification with security validation and DMA protection
 - 🌐 **Multi-Protocol Tunneling:** PCIe, DisplayPort, and USB 3.2 tunneling validation with integrity checking
@@ -382,6 +412,29 @@ bandwidth_result = viz.plot_tunnel_bandwidth(
 )
 ```
 
+#### Loopback Stress Testing (NEW in v1.4.1)
+```python
+from serdes_validation_framework.stress_testing import LoopbackStressTest, create_stress_test_config
+
+# Create stress test configuration
+config = create_stress_test_config(
+    protocol="USB4",
+    num_cycles=1000,
+    output_dir="usb4_stress_results"
+)
+
+# Run stress test
+stress_test = LoopbackStressTest(config)
+results = stress_test.run_stress_test()
+
+# Analyze results
+print(f"Success Rate: {results.success_rate:.1%}")
+print(f"Max Degradation: {results.max_degradation:.1f}%")
+print(f"Final Eye Height: {results.final_eye_height:.4f}V")
+
+# Results automatically saved to CSV and plots generated
+```
+
 #### Traditional Test Sequencer
 ```python
 from serdes_validation_framework.test_sequence import PCIeTestSequencer
@@ -404,6 +457,66 @@ results = sequencer.run_sequence([
 ])
 
 print(f"Test completed: {results['status']}")
+```
+
+#### REST API Usage (NEW in v1.4.1)
+```python
+# Start the API server
+from serdes_validation_framework.api import create_app
+import uvicorn
+
+app = create_app()
+uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# Or use the CLI
+# python -m serdes_validation_framework.api.cli server --host 0.0.0.0 --port 8000
+```
+
+```python
+# Use the API client
+import requests
+import numpy as np
+
+# Analyze eye diagram via API
+signal_data = np.random.randn(1000) * 0.4
+response = requests.post("http://localhost:8000/api/v1/eye-diagram/analyze", json={
+    "signal_data": signal_data.tolist(),
+    "sample_rate": 40e9,
+    "protocol": "USB4",
+    "show_mask": True
+})
+
+result = response.json()
+print(f"Eye Height: {result['eye_height']:.4f}V")
+print(f"Q-Factor: {result['q_factor']:.2f}")
+print(f"Mask Compliance: {result['mask_analysis']['compliance_level']}")
+
+# Start stress test asynchronously
+stress_response = requests.post("http://localhost:8000/api/v1/stress-test/start", json={
+    "protocol": "USB4",
+    "num_cycles": 100,
+    "cycle_duration": 1.0
+})
+
+test_id = stress_response.json()["test_id"]
+
+# Monitor test progress
+status_response = requests.get(f"http://localhost:8000/api/v1/test/{test_id}/status")
+print(f"Test Status: {status_response.json()['status']}")
+```
+
+```bash
+# Use the CLI client
+python -m serdes_validation_framework.api.cli analyze-eye \
+    --signal-file signal_data.csv \
+    --protocol USB4 \
+    --sample-rate 40e9 \
+    --output results.json
+
+python -m serdes_validation_framework.api.cli start-stress-test \
+    --protocol PCIe \
+    --cycles 500 \
+    --duration 2.0
 ```
 
 ## 📁 Examples & Scripts

@@ -48,6 +48,75 @@ report_path = reporter.generate_compliance_report(session.session_id)
 print(f"Report generated: {report_path}")
 ```
 
+### 3. REST API Usage (NEW in v1.4.1)
+
+#### Starting the API Server
+
+```bash
+# Start the API server
+python -m serdes_validation_framework.api.cli server --host 0.0.0.0 --port 8000
+
+# Or use the run script
+python run_api_server.py
+```
+
+#### Using the API
+
+```python
+import requests
+import numpy as np
+
+# API base URL
+BASE_URL = "http://localhost:8000/api/v1"
+
+# Generate test signal
+signal_data = np.random.randn(1000) * 0.4
+
+# Analyze eye diagram via API
+response = requests.post(f"{BASE_URL}/eye-diagram/analyze", json={
+    "signal_data": signal_data.tolist(),
+    "sample_rate": 40e9,
+    "protocol": "USB4",
+    "show_mask": True
+})
+
+if response.status_code == 200:
+    result = response.json()
+    print(f"Eye Height: {result['eye_height']:.4f}V")
+    print(f"Q-Factor: {result['q_factor']:.2f}")
+    print(f"Mask Compliance: {result['mask_analysis']['compliance_level']}")
+
+# Start stress test
+stress_response = requests.post(f"{BASE_URL}/stress-test/start", json={
+    "protocol": "USB4",
+    "num_cycles": 100,
+    "cycle_duration": 1.0
+})
+
+test_id = stress_response.json()["test_id"]
+print(f"Started stress test: {test_id}")
+```
+
+#### CLI Client Usage
+
+```bash
+# Analyze eye diagram
+python -m serdes_validation_framework.api.cli analyze-eye \
+    --signal-file signal_data.csv \
+    --protocol USB4 \
+    --sample-rate 40e9 \
+    --output results.json
+
+# Start stress test
+python -m serdes_validation_framework.api.cli start-stress-test \
+    --protocol PCIe \
+    --cycles 500 \
+    --duration 2.0
+
+# Get system status
+python -m serdes_validation_framework.api.cli status
+```
+
 ### 3. Mock Mode for Development
 
 ```python

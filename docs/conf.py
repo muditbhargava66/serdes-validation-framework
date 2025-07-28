@@ -26,8 +26,8 @@ os.environ['SVF_MOCK_MODE'] = '1'
 project = 'SerDes Validation Framework'
 copyright = '2025, SerDes Validation Framework Contributors'
 author = 'Mudit Bhargava'
-release = '1.4.0'
-version = '1.4.0'
+release = '1.4.1'
+version = '1.4.1'
 
 # -- General configuration ---------------------------------------------------
 
