@@ -1,8 +1,14 @@
-# SerDes Validation Framework Examples
+# SerDes Validation Framework Examples v1.4.1
 
-This directory contains comprehensive examples demonstrating the capabilities of the SerDes Validation Framework v1.4.0.
+This directory contains comprehensive examples demonstrating the capabilities of the SerDes Validation Framework v1.4.1, including new REST API, Jupyter Dashboard, and stress testing examples.
 
 ## 📁 Example Files
+
+### 🆕 New in v1.4.1
+- **`jupyter_dashboard_example.py`** - Interactive Jupyter dashboard demonstration
+- **`jupyter_eye_diagram_dashboard.ipynb`** - Complete Jupyter notebook for eye diagram analysis
+- **`loopback_stress_test_example.py`** - Loopback stress testing with progressive degradation
+- **API Examples** - Available via `run_api_server.py` and `test_api_client.py` in root directory
 
 ### Navigation
 - **`example_index.py`** - Interactive menu for browsing and running examples
@@ -40,27 +46,58 @@ python examples/example_index.py
 
 ### Direct Example Execution
 
-#### Basic Data Analysis
+#### 🆕 New v1.4.1 Examples
+
+##### Jupyter Dashboard
+```bash
+# Interactive dashboard example
+python examples/jupyter_dashboard_example.py
+
+# Launch Jupyter notebook
+jupyter notebook examples/jupyter_eye_diagram_dashboard.ipynb
+```
+
+##### Loopback Stress Testing
+```bash
+# Basic stress test
+python examples/loopback_stress_test_example.py
+
+# Advanced stress test with custom parameters
+python examples/loopback_stress_test_example.py --protocol PCIe --cycles 1000
+```
+
+##### REST API Examples (from root directory)
+```bash
+# Start API server
+python run_api_server.py
+
+# Test API functionality
+python test_api_client.py --no-interactive
+```
+
+#### Core Examples
+
+##### Basic Data Analysis
 ```bash
 python examples/data_analysis_example.py
 ```
 
-#### PCIe 6.0 Validation
+##### PCIe 6.0 Validation
 ```bash
 python examples/pcie_example.py
 ```
 
-#### USB4 Quick Start
+##### USB4 Quick Start
 ```bash
 python examples/usb4_quick_start.py
 ```
 
-#### Comprehensive Visualization Demo
+##### Comprehensive Visualization Demo
 ```bash
 python examples/comprehensive_visualization_example.py
 ```
 
-#### Test Sequence Automation
+##### Test Sequence Automation
 ```bash
 python examples/test_sequence_example.py
 ```
@@ -117,12 +154,24 @@ python examples/test_sequence_example.py
 - **Multi-Protocol Comparison**: Side-by-side protocol analysis and benchmarking
 - **Signal Analysis Plots**: Frequency spectrum, time domain, and signal quality visualizations
 
+### 8. 🆕 New v1.4.1 Example Categories
+- **🌐 REST API Examples**: Complete API usage patterns and integration examples
+- **📊 Jupyter Dashboard Examples**: Interactive eye diagram analysis and visualization
+- **🔄 Stress Testing Examples**: Progressive degradation simulation and monitoring
+- **🔗 Integration Examples**: API + Dashboard + Stress Testing combined workflows
+
 ## 🔧 Requirements
 
 ### Basic Requirements
 - Python 3.9+
 - NumPy
-- SerDes Validation Framework v1.4.0+
+- SerDes Validation Framework v1.4.1+
+
+### 🆕 New Dependencies (v1.4.1)
+- FastAPI (for REST API examples)
+- Uvicorn (for API server examples)
+- Jupyter (for dashboard examples)
+- IPywidgets (for interactive dashboard controls)
 
 ### Optional Dependencies
 - Matplotlib (for plotting and visualization)
@@ -156,6 +205,11 @@ python examples/usb4_thunderbolt_certification_example.py --device-type HOST_CON
 python examples/usb4_tunneling_example.py --protocols pcie,dp
 python examples/multi_protocol_comparison.py --protocols all
 python examples/framework_integration_example.py --verbose
+
+# 🆕 New v1.4.1 examples
+python examples/jupyter_dashboard_example.py --protocol USB4
+python examples/loopback_stress_test_example.py --protocol PCIe --cycles 500
+jupyter notebook examples/jupyter_eye_diagram_dashboard.ipynb
 ```
 
 ### Mock vs Real Hardware

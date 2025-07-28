@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "serdes-validation-framework"
-version = "1.4.0"
+version = "1.4.1"
 description = "A comprehensive framework for validating high-speed SerDes protocols with PCIe 6.0, 224G Ethernet, and USB4/Thunderbolt 4 support."
 authors = [
     {name = "Mudit Bhargava", email = "muditbhargava666@gmail.com"}
@@ -64,7 +64,16 @@ dependencies = [
     "python-usbtmc>=0.8",
     "gpib-ctypes @ git+https://github.com/tivek/gpib_ctypes",
     "zeroconf>=0.131.0",
-    "psutil>=5.9.0"
+    "psutil>=5.9.0",
+    # API dependencies
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.0.0",
+    "click>=8.0.0",
+    "requests>=2.31.0",
+    "python-multipart>=0.0.6",
+    "aiofiles>=23.2.0",
+    "httpx>=0.25.0"
 ]
 
 [project.urls]
@@ -161,6 +170,7 @@ ignore = [
     "E402",   # module level import not at top (sometimes necessary)
     "F811",   # redefinition of unused variable (common in configuration files)
     "B905",   # zip() without explicit strict parameter (Python 3.9 compatibility)
+    "N805",   # first argument of a method should be named `self` (not applicable to Pydantic validators)
 ]
 # Extend select rules
 select = [

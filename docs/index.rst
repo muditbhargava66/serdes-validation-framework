@@ -82,6 +82,8 @@ Latest Features (v1.4.0+)
    :hidden:
 
    guides/testing
+   guides/stress_testing_overview
+   guides/jupyter_dashboard_guide
    guides/cicd
    guides/troubleshooting
    guides/instrument_setup

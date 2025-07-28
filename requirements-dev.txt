@@ -1,4 +1,4 @@
-# Development dependencies for SerDes Validation Framework v1.4.0
+# Development dependencies for SerDes Validation Framework v1.4.1
 -r requirements.txt
 
 # Testing
@@ -34,7 +34,5 @@ linkify-it-py
 ipython>=8.0.0
 jupyter>=1.0.0
 
-# Visualization
-matplotlib>=3.7.0
-seaborn>=0.12.0
-plotly>=5.17.0
+# Additional development tools
+ipywidgets>=8.0.0

@@ -1,6 +1,6 @@
-# SerDes Validation Framework Test Suite
+# SerDes Validation Framework Test Suite v1.4.1
 
-This directory contains comprehensive tests for the SerDes Validation Framework v1.4.0, covering all supported protocols and functionality.
+This directory contains comprehensive tests for the SerDes Validation Framework v1.4.1, covering all supported protocols, REST API functionality, Jupyter Dashboard features, and stress testing capabilities.
 
 ## 📁 Test Structure
 
@@ -14,6 +14,11 @@ This directory contains comprehensive tests for the SerDes Validation Framework 
 - **`test_pcie_analyzer.py`** - PCIe 6.0 analyzer tests
 - **`test_usb4_comprehensive.py`** - Comprehensive USB4/Thunderbolt 4 tests
 - **`test_multi_protocol.py`** - Multi-protocol comparison tests
+
+### 🆕 New Tests in v1.4.1
+- **`test_api.py`** - Complete REST API functionality tests (15 tests)
+- **`test_jupyter_dashboard.py`** - Jupyter dashboard system tests (22 tests)
+- **`test_stress_testing.py`** - Loopback stress testing validation (16 tests)
 
 ### Integration Tests
 - **`integration/test_multi_protocol_integration.py`** - Cross-protocol integration
@@ -67,12 +72,18 @@ python tests/run_tests.py --category unit --verbose
 - PCIe 6.0 analyzer capabilities
 - USB4/Thunderbolt 4 comprehensive validation
 - Multi-protocol comparison algorithms
+- 🆕 **REST API endpoints** (all 8 endpoints tested)
+- 🆕 **Jupyter dashboard functionality** (eye diagrams, waveform analysis)
+- 🆕 **Stress testing systems** (loopback and USB4-specific)
 
 **Characteristics**:
-- Fast execution (< 30 seconds total)
+- Fast execution (< 50 seconds total for 130 tests)
 - Mock mode enabled by default
 - No external dependencies required
 - High test coverage for core functionality
+- 🆕 **API endpoint validation** with request/response testing
+- 🆕 **Dashboard component testing** with mock data
+- 🆕 **Stress test simulation** with progressive degradation
 
 ### 2. Integration Tests
 **Purpose**: Test interaction between different components
@@ -154,6 +165,11 @@ Common test fixtures are provided in `conftest.py`:
 - ✅ **USB4/Thunderbolt 4**: Dual-lane, tunneling, power management, certification
 - ✅ **Multi-Protocol**: Cross-protocol comparison, detection, integration
 
+### 🆕 New Coverage in v1.4.1
+- ✅ **REST API**: All 8 endpoints with full request/response validation
+- ✅ **Jupyter Dashboard**: Eye diagram analysis, waveform analysis, multi-protocol support
+- ✅ **Stress Testing**: Loopback testing, progressive degradation, multi-cycle validation
+
 ### Functionality Coverage
 - ✅ **Signal Analysis**: Eye diagrams, jitter analysis, BER estimation
 - ✅ **Data Analysis**: Statistical analysis, visualization, processing
@@ -166,6 +182,10 @@ Common test fixtures are provided in `conftest.py`:
 - **Integration Coverage**: Key workflows and interactions
 - **Performance Coverage**: Critical performance paths
 - **Error Handling**: Exception scenarios and edge cases
+- 🆕 **API Test Coverage**: 100% endpoint coverage (15/15 tests passing)
+- 🆕 **Dashboard Test Coverage**: Complete component testing (22/22 tests passing)
+- 🆕 **Stress Test Coverage**: Full simulation testing (16/16 tests passing)
+- 🆕 **Total Test Count**: 130 tests (up from ~90 in v1.4.0)
 
 ## 🎯 Running Tests in Different Modes
 
@@ -257,9 +277,9 @@ python -m pytest tests/test_data_analysis.py::TestDataAnalyzer::test_compute_sta
 ## 📈 Performance Expectations
 
 ### Unit Tests
-- **Execution Time**: < 30 seconds total
-- **Memory Usage**: < 100 MB peak
-- **Test Count**: ~50-100 individual tests
+- **Execution Time**: < 50 seconds total (130 tests)
+- **Memory Usage**: < 150 MB peak
+- **Test Count**: 130 individual tests (including 53 new v1.4.1 tests)
 
 ### Integration Tests
 - **Execution Time**: 30-120 seconds total

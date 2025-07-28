@@ -5,6 +5,70 @@ All notable changes to the SerDes Validation Framework will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-07-28
+
+### Added
+- **REST API Framework** 🌐
+  - Complete FastAPI-based REST API for remote access
+  - Eye diagram analysis endpoints with mask compliance checking
+  - Waveform analysis and signal quality assessment
+  - Asynchronous stress testing with real-time status monitoring
+  - Test fixture control and environmental monitoring
+  - System status and health monitoring endpoints
+  - Comprehensive request/response models with validation
+  - CLI client for command-line API interaction
+  - OpenAPI/Swagger documentation at `/docs`
+  - CORS and compression middleware support
+
+- **Loopback Stress Testing** 🔄
+  - Complete loopback stress test implementation (TX → RX → back to TX)
+  - Progressive signal degradation simulation over multiple cycles
+  - Automatic eye height, jitter, and SNR tracking
+  - CSV logging for cycle-by-cycle data analysis
+  - Interactive plots showing degradation trends over time
+  - Configurable thresholds for pass/fail criteria
+  - Support for all protocols (USB4, PCIe, Ethernet)
+  - Waveform saving for failed cycles
+  - Comprehensive logging and error handling
+
+### Enhanced
+- **Dual Stress Testing Systems** 🆕
+  - **Loopback Stress Testing Module** (`stress_testing/`)
+    - `LoopbackStressTest` class for automated stress testing
+    - `StressTestConfig` for flexible test configuration
+    - `StressTestResults` with comprehensive metrics and statistics
+    - Progressive degradation modeling with realistic effects
+    - Multi-protocol support with protocol-specific parameters
+  - **USB4-Specific Stress Testing** (`protocols/usb4/stress_testing.py`)
+    - `USB4StressTester` for protocol-aware stress scenarios
+    - Thermal stress testing with temperature monitoring
+    - Error injection and recovery testing
+    - Power cycling and bandwidth saturation stress
+    - Multi-device stress testing capabilities
+
+- **Jupyter Dashboard Module** (`jupyter_dashboard/`) 🆕
+  - `EyeDiagramDashboard` for interactive eye diagram visualization
+  - `WaveformAnalyzer` for comprehensive signal analysis
+  - `InteractivePlotter` with real-time controls and widgets
+  - Support for captured waveforms and pass/fail annotations
+  - Multi-lane analysis with protocol-specific features
+  - Professional visualizations with matplotlib and plotly
+  - Export capabilities for results and plots
+
+### Scripts & Examples
+- **`scripts/run_loopback_stress_test.py`**: Command-line stress testing tool
+- **`examples/loopback_stress_test_example.py`**: Comprehensive usage examples
+- **`examples/jupyter_dashboard_example.py`**: Jupyter dashboard demonstration 🆕
+- **`examples/jupyter_eye_diagram_dashboard.ipynb`**: Interactive Jupyter notebook 🆕
+- Support for quick tests, protocol comparison, and CSV analysis
+- Interactive dashboard examples with multi-protocol support
+
+### Performance
+- Efficient signal generation with configurable degradation models
+- Optimized for long-running tests (1000+ cycles)
+- Memory-efficient waveform processing
+- Real-time progress monitoring and logging
+
 ## [1.4.0] - 2025-07-27
 
 ### Added

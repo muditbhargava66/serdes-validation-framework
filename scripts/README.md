@@ -1,8 +1,13 @@
-# SerDes Validation Framework Scripts
+# SerDes Validation Framework Scripts v1.4.1
 
-This directory contains production-ready scripts for comprehensive SerDes validation workflows.
+This directory contains production-ready scripts for comprehensive SerDes validation workflows, including new API server management and stress testing capabilities.
 
 ## 📁 Script Files
+
+### 🆕 New in v1.4.1
+- **`run_loopback_stress_test.py`** - Loopback stress testing with progressive degradation
+- **API Server Scripts** - Available via `run_api_server.py` in root directory
+- **API Client Scripts** - Available via `test_api_client.py` in root directory
 
 ### Core Scripts
 - **`pcie_validation.py`** - Complete PCIe 6.0 validation suite
@@ -17,6 +22,32 @@ This directory contains production-ready scripts for comprehensive SerDes valida
 - **`usb4_validation.py`** - USB4/Thunderbolt 4 comprehensive validation
 
 ## 🚀 Quick Start
+
+### 🆕 New v1.4.1 Features
+
+#### Loopback Stress Testing
+```bash
+# Run comprehensive loopback stress test
+python scripts/run_loopback_stress_test.py --protocol USB4 --cycles 1000
+
+# Multi-protocol stress testing
+python scripts/run_loopback_stress_test.py --protocol PCIe --cycles 500 --output ./stress_results
+
+# Interactive stress test with real-time monitoring
+python scripts/run_loopback_stress_test.py --protocol Ethernet --cycles 2000 --interactive
+```
+
+#### API Server Management (from root directory)
+```bash
+# Start API server
+python run_api_server.py --host 0.0.0.0 --port 8000
+
+# Test API functionality
+python test_api_client.py --no-interactive
+
+# API server with custom configuration
+python run_api_server.py --host 127.0.0.1 --port 8080 --no-reload
+```
 
 ### PCIe 6.0 Validation
 ```bash
@@ -98,6 +129,11 @@ SVF_MOCK_MODE=1 python scripts/instrument_control.py
 - **Report Generation** - Automated reporting
 - **Performance Monitoring** - System performance tracking
 
+### 5. 🆕 Stress Testing Scripts (v1.4.1)
+- **Loopback Stress Testing** - Progressive signal degradation simulation
+- **Multi-cycle Testing** - Long-duration stress validation
+- **Real-time Monitoring** - Live stress test monitoring and reporting
+
 ## 🔧 Command-Line Options
 
 ### PCIe Validation Script
@@ -161,6 +197,19 @@ Options:
   --benchmark                   Run performance benchmarks
   --compare                     Generate cross-protocol comparison
   --mock                       Force mock mode
+```
+
+### 🆕 Loopback Stress Test Script (v1.4.1)
+```bash
+python scripts/run_loopback_stress_test.py [OPTIONS]
+
+Options:
+  --protocol {USB4,PCIe,Ethernet}   Protocol to test (default: USB4)
+  --cycles N                        Number of test cycles (default: 100)
+  --output DIR                      Output directory (default: ./stress_results)
+  --interactive                     Enable interactive monitoring
+  --verbose                         Enable verbose logging
+  --config FILE                     Custom configuration file
 ```
 
 ## 📈 Performance Benchmarks

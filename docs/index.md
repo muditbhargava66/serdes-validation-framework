@@ -4,7 +4,22 @@ Welcome to the comprehensive documentation for the SerDes Validation Framework -
 
 ## 🚀 What's New
 
-### Latest Features (v1.4.0+)
+### Latest Features (v1.4.1+)
+- **🌐 REST API Framework** - Complete web API for remote access and integration
+  - FastAPI-based REST API with automatic OpenAPI documentation
+  - Eye diagram analysis and waveform analysis endpoints
+  - Asynchronous stress testing with real-time monitoring
+  - Test fixture control and environmental monitoring
+  - CLI client for command-line API interaction
+  - Interactive Swagger UI documentation at `/docs`
+
+- **🔄 Loopback Stress Testing** - Complete TX → RX → back to TX simulation with progressive degradation tracking
+  - Multi-cycle testing (1000+ cycles) with real-time monitoring
+  - Signal quality tracking (eye height, jitter, SNR, BER) over time
+  - CSV data export and interactive trend visualization
+  - Multi-protocol support (USB4, PCIe, Ethernet)
+
+### Major Features (v1.4.0+)
 - **Complete USB4/Thunderbolt 4 Support** - Full implementation with dual-lane analysis, tunneling validation, and certification testing
 - **Advanced Mock Testing Infrastructure** - Comprehensive mock system enabling CI/CD testing without hardware
 - **Multi-Protocol Validation** - Unified framework supporting USB4, PCIe, Thunderbolt, and 224G Ethernet
@@ -33,6 +48,11 @@ Welcome to the comprehensive documentation for the SerDes Validation Framework -
 - [USB4 Examples](usb4/examples/basic-validation.md) - Practical validation examples
 - [USB4 Best Practices](usb4/guides/best-practices.md) - Optimization and recommendations
 
+### API & Integration
+- [REST API Documentation](api/rest-api.md) - Complete REST API reference
+- [API Client Examples](examples/api_examples.md) - Python and CLI usage examples
+- [Integration Guide](guides/integration.md) - Integrating with external systems
+
 ### Protocol Support
 - [PCIe Validation](api/pcie.md) - PCIe signal analysis and compliance testing
 - [224G Ethernet](api/eth_224g.md) - High-speed Ethernet PHY validation
@@ -47,6 +67,7 @@ Welcome to the comprehensive documentation for the SerDes Validation Framework -
 - Signal Analysis - Eye diagrams, jitter analysis, and more
 - [🎨 Visualization System](guides/visualization.md) - Comprehensive visualization guide
 - [Visualization API](api/visualization.md) - Complete visualization API reference
+- [🔄 Stress Testing](guides/stress_testing.md) - Loopback stress testing guide
 - [Reporting](api/reporting.md) - Automated report generation
 - [Instrument Control](api/instrument_control.md) - Hardware integration
 
